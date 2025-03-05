@@ -55,10 +55,12 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import uk.ac.tees.mad.tuneflow.navigation.SetupNavGraph
 import uk.ac.tees.mad.tuneflow.ui.theme.TuneFlowTheme
 
 class MainActivity : ComponentActivity() {
@@ -90,112 +92,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TuneFlowTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    print(innerPadding)
-                    SplashScreen(
-                        onSplashComplete = {}
-                    )
-
-                }
+                val navController = rememberNavController()
+                SetupNavGraph(navController = navController)
             }
-        }
-    }
-}
-
-
-@Composable
-fun SplashScreen(
-    onSplashComplete: () -> Unit
-) {
-    var isVisible by remember { mutableStateOf(true) }
-
-    // Animation states for the sound wave bars
-    val infiniteTransition = rememberInfiniteTransition(label = "waveTransition")
-    val waves = List(24) { index ->
-        infiniteTransition.animateFloat(
-            initialValue = 0.3f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1000, delayMillis = index * 100),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "wave$index"
-        )
-    }
-
-    // Title scale animation
-    val scale = remember { Animatable(0.3f) }
-
-    LaunchedEffect(key1 = true) {
-        // Animate title scale
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(
-                durationMillis = 1000,
-                easing = EaseOutBack
-            )
-        )
-
-        // Preload user preferences and cached songs here
-        delay(2000) // Simulated loading time
-
-        // Fade out animation
-        isVisible = false
-        delay(500)
-        //onSplashComplete()
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.scale(scale.value)
-        ) {
-            // App Name
-            Text(
-                text = "TuneFlow",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 48.sp
-                ),
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Animated sound wave
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.height(40.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                waves.forEach { wave ->
-                    Box(
-                        modifier = Modifier
-                            .width(4.dp)
-                            .height(30.dp * wave.value)
-                            .background(
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = MaterialTheme.shapes.medium
-                            )
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Tagline
-            Text(
-                text = "Feel the music, flow with the rhythm!",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-                fontStyle = FontStyle.Italic
-            )
         }
     }
 }
