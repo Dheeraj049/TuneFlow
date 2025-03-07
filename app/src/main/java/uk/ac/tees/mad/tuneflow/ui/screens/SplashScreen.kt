@@ -70,7 +70,7 @@ fun SplashScreen(
         )
 
         // Preload user preferences and cached songs here
-        delay(20000) // Simulated loading time
+        delay(2000) // Simulated loading time
 
         // Fade out animation
         isVisible = false

@@ -15,7 +15,7 @@ sealed class Dest {
     data object SplashScreen : Dest()
 
     @Serializable
-    data object LoginScreen : Dest()
+    data object SignInScreen : Dest()
 
     @Serializable
     data object SignUpScreen : Dest()

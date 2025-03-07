@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "553663296787",
+    "project_id": "tuneflow-b6b81",
+    "storage_bucket": "tuneflow-b6b81.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:553663296787:android:bd05e07412ebce8dc016e6",
+        "android_client_info": {
+          "package_name": "uk.ac.tees.mad.tuneflow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAxzS4iARX2g1D9W4__dHgFcUPQIPbMcM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
