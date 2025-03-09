@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.tuneflow.navigation
+package uk.ac.tees.mad.tuneflow.view.navigation
 
 import kotlinx.serialization.Serializable
 
