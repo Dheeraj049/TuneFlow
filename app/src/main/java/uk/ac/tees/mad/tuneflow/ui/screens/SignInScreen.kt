@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import org.koin.androidx.compose.koinViewModel
-import uk.ac.tees.mad.tuneflow.dataclass.AuthResult
+import uk.ac.tees.mad.tuneflow.model.dataclass.AuthResult
 import uk.ac.tees.mad.tuneflow.view.navigation.CARD_TRANSITION_KEY
 import uk.ac.tees.mad.tuneflow.view.navigation.Dest
 import uk.ac.tees.mad.tuneflow.view.navigation.SubGraph

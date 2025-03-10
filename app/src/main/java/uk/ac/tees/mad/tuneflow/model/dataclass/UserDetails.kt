@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.tuneflow.dataclass
+package uk.ac.tees.mad.tuneflow.model.dataclass
 
 data class UserData(
     val userDetails: UserDetails? = null, val userId: String? = null

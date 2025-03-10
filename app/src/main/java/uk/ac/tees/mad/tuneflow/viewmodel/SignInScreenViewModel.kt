@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import uk.ac.tees.mad.tuneflow.dataclass.AuthResult
+import uk.ac.tees.mad.tuneflow.model.dataclass.AuthResult
 import uk.ac.tees.mad.tuneflow.repository.AuthRepository
 
 class SignInScreenViewModel(private val authRepository: AuthRepository) : ViewModel() {

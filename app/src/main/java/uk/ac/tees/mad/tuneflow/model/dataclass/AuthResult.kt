@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.tuneflow.dataclass
+package uk.ac.tees.mad.tuneflow.model.dataclass
 
 sealed class AuthResult<out T> {
     data object Loading : AuthResult<Nothing>()

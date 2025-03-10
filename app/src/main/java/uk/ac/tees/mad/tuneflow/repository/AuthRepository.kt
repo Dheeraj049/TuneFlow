@@ -5,8 +5,8 @@ import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
-import uk.ac.tees.mad.tuneflow.dataclass.AuthResult
-import uk.ac.tees.mad.tuneflow.dataclass.UserDetails
+import uk.ac.tees.mad.tuneflow.model.dataclass.AuthResult
+import uk.ac.tees.mad.tuneflow.model.dataclass.UserDetails
 
 class AuthRepository(private val auth: FirebaseAuth) {
     fun signUp(email: String, pass: String): Flow<AuthResult<Boolean>> = flow {
