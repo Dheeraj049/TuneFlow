@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.tuneflow.model.dataclass.LoadingState
+import uk.ac.tees.mad.tuneflow.model.repository.AuthRepository
 import uk.ac.tees.mad.tuneflow.model.repository.NetworkRepository
-import uk.ac.tees.mad.tuneflow.repository.AuthRepository
 
 class SplashScreenViewModel(
     private val networkRepository: NetworkRepository, private val authRepository: AuthRepository

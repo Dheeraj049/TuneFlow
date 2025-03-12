@@ -23,13 +23,9 @@ fun WaveAnimation(numWaves: Int = 6, color: Color = MaterialTheme.colorScheme.pr
     val infiniteTransition = rememberInfiniteTransition(label = "waveTransition")
     val waves = List(numWaves) { index ->
         infiniteTransition.animateFloat(
-            initialValue = 0.3f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(1000, delayMillis = index * 100),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "wave$index"
+            initialValue = 0.3f, targetValue = 1f, animationSpec = infiniteRepeatable(
+                animation = tween(1000, delayMillis = index * 100), repeatMode = RepeatMode.Reverse
+            ), label = "wave$index"
         )
     }
     // Animated sound wave
@@ -44,8 +40,7 @@ fun WaveAnimation(numWaves: Int = 6, color: Color = MaterialTheme.colorScheme.pr
                     .width(4.dp)
                     .height(30.dp * wave.value)
                     .background(
-                        color = color,
-                        shape = MaterialTheme.shapes.medium
+                        color = color, shape = MaterialTheme.shapes.medium
                     )
             )
         }

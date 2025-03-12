@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoadingScreen(){
+fun LoadingScreen() {
 
     // Title scale animation
     val scale = remember { Animatable(0.3f) }

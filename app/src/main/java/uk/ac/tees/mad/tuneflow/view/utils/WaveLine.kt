@@ -19,14 +19,11 @@ import androidx.compose.ui.graphics.Path
 fun WaveLine(index: Int, color: Color) {
     val infiniteTransition = rememberInfiniteTransition(label = "wave")
     val offsetY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 500f,
-        animationSpec = infiniteRepeatable(
+        initialValue = 0f, targetValue = 500f, animationSpec = infiniteRepeatable(
             animation = tween(2000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse,
             initialStartOffset = StartOffset(index * 500)
-        ),
-        label = "wave offset"
+        ), label = "wave offset"
     )
 
     Canvas(
@@ -40,8 +37,7 @@ fun WaveLine(index: Int, color: Color) {
 
         for (x in 0..width.toInt() step 50) {
             path.quadraticTo(
-                x + 25f, height * 0.5f + offsetY - 25,
-                x + 50f, height * 0.5f + offsetY
+                x + 25f, height * 0.5f + offsetY - 25, x + 50f, height * 0.5f + offsetY
             )
         }
 

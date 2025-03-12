@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.tuneflow.repository
+package uk.ac.tees.mad.tuneflow.model.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -59,7 +59,8 @@ class AuthRepository(private val auth: FirebaseAuth) {
                     email = currentUser.email,
                     displayName = currentUser.displayName,
                     isEmailVerified = currentUser.isEmailVerified,
-                    phoneNumber = currentUser.phoneNumber
+                    phoneNumber = currentUser.phoneNumber,
+                    photoUrl = currentUser.photoUrl
                 )
                 emit(AuthResult.Success(userDetails))
             } else {

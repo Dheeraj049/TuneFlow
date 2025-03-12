@@ -14,14 +14,12 @@ import kotlinx.coroutines.delay
 fun Modifier.pulsateEffect() = composed {
     val scale = remember { Animatable(1f) }
     LaunchedEffect(Unit) {
-        while(true) {
+        while (true) {
             scale.animateTo(
-                1.2f,
-                animationSpec = tween(500, easing = FastOutSlowInEasing)
+                1.2f, animationSpec = tween(500, easing = FastOutSlowInEasing)
             )
             scale.animateTo(
-                1f,
-                animationSpec = tween(500, easing = FastOutSlowInEasing)
+                1f, animationSpec = tween(500, easing = FastOutSlowInEasing)
             )
             delay(1000)
         }

@@ -10,8 +10,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import uk.ac.tees.mad.tuneflow.view.navigation.SetupNavGraph
 import uk.ac.tees.mad.tuneflow.ui.theme.TuneFlowTheme
+import uk.ac.tees.mad.tuneflow.view.navigation.SetupNavGraph
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

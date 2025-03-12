@@ -47,7 +47,8 @@ fun SplashScreen(
                     }
 
                     is LoadingState.Error -> {
-                        LoadingErrorScreen(errorMessage = state.message,
+                        LoadingErrorScreen(
+                            errorMessage = state.message,
                             onRetry = { viewModel.startLoading() })
                     }
 
@@ -74,8 +75,6 @@ fun SplashScreen(
         }
     }
 }
-
-
 
 
 //@Composable

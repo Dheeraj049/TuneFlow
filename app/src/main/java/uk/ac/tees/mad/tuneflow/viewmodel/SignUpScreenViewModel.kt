@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import uk.ac.tees.mad.tuneflow.model.dataclass.AuthResult
-import uk.ac.tees.mad.tuneflow.repository.AuthRepository
+import uk.ac.tees.mad.tuneflow.model.repository.AuthRepository
 
 class SignUpScreenViewModel(private val authRepository: AuthRepository) : ViewModel() {
     private val _signUpResult = MutableStateFlow<AuthResult<Boolean>>(AuthResult.Success(false))
