@@ -117,7 +117,7 @@ fun SharedTransitionScope.SignUpScreen(
                     ) {
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth(0.9f)
+                                .fillMaxWidth(0.95f)
                                 .padding(16.dp)
                                 .sharedBounds(
                                     sharedContentState = rememberSharedContentState(key = CARD_TRANSITION_KEY),
@@ -253,9 +253,12 @@ fun SharedTransitionScope.SignUpScreen(
                                     Text(
                                         text = "Already part of our rhythm?",
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.weight(1f)
                                     )
-                                    TextButton(onClick = {
+                                    TextButton(
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
                                         navController.navigate(SubGraph.AuthGraph) {
                                             popUpTo(SubGraph.AuthGraph) {
                                                 inclusive = true

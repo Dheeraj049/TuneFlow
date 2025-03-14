@@ -115,7 +115,7 @@ fun SharedTransitionScope.SignInScreen(
                     ) {
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth(0.9f)
+                                .fillMaxWidth(0.95f)
                                 .padding(16.dp)
                                 .sharedBounds(
                                     sharedContentState = rememberSharedContentState(key = CARD_TRANSITION_KEY),
@@ -253,9 +253,12 @@ fun SharedTransitionScope.SignInScreen(
                                     Text(
                                         text = "First time dropping by?",
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.weight(1f)
                                     )
-                                    TextButton(onClick = {
+                                    TextButton(
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
                                         viewModel.updateEmail("")
                                         viewModel.updatePassword("")
                                         navController.navigate(Dest.SignUpScreen)

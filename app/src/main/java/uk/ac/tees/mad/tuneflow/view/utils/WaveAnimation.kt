@@ -16,10 +16,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun WaveAnimation(numWaves: Int = 6, color: Color = MaterialTheme.colorScheme.primary) {
+fun WaveAnimation(numWaves: Int = 6, color: Color = MaterialTheme.colorScheme.primary, width: Dp = 4.dp) {
     val infiniteTransition = rememberInfiniteTransition(label = "waveTransition")
     val waves = List(numWaves) { index ->
         infiniteTransition.animateFloat(
@@ -30,14 +31,14 @@ fun WaveAnimation(numWaves: Int = 6, color: Color = MaterialTheme.colorScheme.pr
     }
     // Animated sound wave
     Row(
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(width),
         modifier = Modifier.height(40.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         waves.forEach { wave ->
             Box(
                 modifier = Modifier
-                    .width(4.dp)
+                    .width(width)
                     .height(30.dp * wave.value)
                     .background(
                         color = color, shape = MaterialTheme.shapes.medium
