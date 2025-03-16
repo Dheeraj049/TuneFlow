@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uk.ac.tees.mad.tuneflow.model.dataclass.ApiPlaylistResponse
 import uk.ac.tees.mad.tuneflow.model.dataclass.AuthResult
 import uk.ac.tees.mad.tuneflow.model.dataclass.ErrorState
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiState
@@ -34,9 +35,16 @@ class HomeScreenViewModel(
     private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    private val _trendingSongs = MutableStateFlow<ApiPlaylistResponse?>(null)
+    val trendingSongs: StateFlow<ApiPlaylistResponse?> = _trendingSongs.asStateFlow()
+
+    private val _trendingAlbums = MutableStateFlow<ApiPlaylistResponse?>(null)
+    val trendingAlbums: StateFlow<ApiPlaylistResponse?> = _trendingAlbums.asStateFlow()
+
     init {
         fetchUserDetails()
-        getTrendingSongsAndAlbums()
+        getTrendingAlbums()
+        getTrendingSongs()
     }
 
     private fun fetchUserDetails() {
@@ -59,11 +67,12 @@ class HomeScreenViewModel(
         authRepository.SignOut()
     }
 
-    fun getTrendingSongsAndAlbums(){
+    fun getTrendingSongs(){
         viewModelScope.launch{
             _uiState.value = UiState.Loading
-            deezerRepository.topWorldwide().onSuccess {fetchedData ->
+            deezerRepository.topSongs().onSuccess {fetchedData ->
                 _uiState.value = UiState.Success(fetchedData)
+                _trendingSongs.value= fetchedData
             }.onFailure {exception ->
                 val errorState = when (exception) {
                     is SocketTimeoutException -> {
@@ -84,6 +93,36 @@ class HomeScreenViewModel(
                 }
                 _uiState.value = UiState.Error(errorState,exception.message.toString())
             }
+        }
+    }
+
+    fun getTrendingAlbums(){
+        viewModelScope.launch{
+            _uiState.value = UiState.Loading
+            deezerRepository.topWorldwide().onSuccess {fetchedData ->
+                //_uiState.value = UiState.Success(fetchedData)
+                _trendingAlbums.value= fetchedData
+            }.onFailure {exception ->
+                val errorState = when (exception) {
+                    is SocketTimeoutException -> {
+                        // `Log.e` is used to log errors to the console.
+                        Log.e("myApp", "Connection timed out: ${exception.message}")
+                        ErrorState.TimeoutError
+                    }
+
+                    is IOException -> {
+                        Log.e("myApp", "No internet connection: ${exception.message}")
+                        ErrorState.NetworkError
+                    }
+
+                    else -> {
+                        Log.e("myApp", "Error fetching items: ${exception.message}")
+                        ErrorState.UnknownError
+                    }
+                }
+                _uiState.value = UiState.Error(errorState,exception.message.toString())
+            }
+
         }
     }
 }

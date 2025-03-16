@@ -21,4 +21,10 @@ interface DeezerApiService {
     @GET("playlist/3155776842")
     suspend fun topWorldwide(): ApiPlaylistResponse
 
+    @Headers(
+        "x-rapidapi-key: 4b34c8ea80msh39ddfee03472a65p1af7aejsn0da7ae025973",
+        "x-rapidapi-host: deezerdevs-deezer.p.rapidapi.com"
+    )
+    @GET("playlist/10496059222")
+    suspend fun topSongs(): ApiPlaylistResponse
 }

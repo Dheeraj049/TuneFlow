@@ -224,14 +224,15 @@ fun HomeScreen(
                         is UiState.Error -> Text(text = "Error")
                         is UiState.Loading -> Text(text = "Loading")
                         is UiState.Success -> {
-                            val data = (uiState as UiState.Success).response.tracks.data
+                            val trendingAlbums by viewmodel.trendingAlbums.collectAsStateWithLifecycle()
+                            val dataA = trendingAlbums?.tracks?.data!!
                             Text(text = "Trending Albums")
                             LazyRow(
                                 state = trendingSongsAndAlbumListState1,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalAlignment = Alignment.Top
                             ) {
-                                items(data) { data ->
+                                items(dataA) { data ->
                                     Column {
                                         ElevatedCard(modifier = Modifier,
                                             onClick = {
@@ -265,19 +266,29 @@ fun HomeScreen(
                                                     softWrap = true,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
+                                                Text(
+                                                    text = data.artist.name,
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    modifier = Modifier.padding(4.dp),
+                                                    softWrap = true,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+
                                             }
                                         }
                                     }
                                 }
                             }
                             Spacer(modifier = Modifier.height(8.dp))
+                            val trendingSongs by viewmodel.trendingSongs.collectAsStateWithLifecycle()
+                            val dataB = trendingSongs?.tracks?.data!!
                             Text(text = "Trending Songs")
                             LazyRow(
                                 state = trendingSongsAndAlbumListState2,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalAlignment = Alignment.Top
                             ) {
-                                items(data) { data ->
+                                items(dataB) { data ->
                                     Column {
                                         ElevatedCard(modifier = Modifier,
                                             onClick = {
@@ -307,6 +318,13 @@ fun HomeScreen(
                                                     text = data.title,
                                                     style = MaterialTheme.typography.bodyLarge,
                                                     fontWeight = FontWeight.Bold,
+                                                    modifier = Modifier.padding(4.dp),
+                                                    softWrap = true,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                                Text(
+                                                    text = data.artist.name,
+                                                    style = MaterialTheme.typography.bodyLarge,
                                                     modifier = Modifier.padding(4.dp),
                                                     softWrap = true,
                                                     overflow = TextOverflow.Ellipsis
