@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.tuneflow.model.dataclass.ApiPlaylistResponse
+import uk.ac.tees.mad.tuneflow.model.dataclass.ApiSearchResponse
 import uk.ac.tees.mad.tuneflow.model.dataclass.AuthResult
 import uk.ac.tees.mad.tuneflow.model.dataclass.ErrorState
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiState
@@ -41,6 +42,12 @@ class HomeScreenViewModel(
     private val _trendingAlbums = MutableStateFlow<ApiPlaylistResponse?>(null)
     val trendingAlbums: StateFlow<ApiPlaylistResponse?> = _trendingAlbums.asStateFlow()
 
+    private val _searchText= MutableStateFlow("")
+    val searchText: StateFlow<String> = _searchText.asStateFlow()
+
+    private val _searchResult= MutableStateFlow<ApiSearchResponse?>(null)
+    val searchResult: StateFlow<ApiSearchResponse?> = _searchResult.asStateFlow()
+
     init {
         fetchUserDetails()
         getTrendingAlbums()
@@ -65,6 +72,37 @@ class HomeScreenViewModel(
 
     fun signOut() {
         authRepository.SignOut()
+    }
+
+    fun updateSearchText(newText: String) {
+        _searchText.value = newText
+    }
+
+    fun search(query: String) {
+        viewModelScope.launch {
+            //_searchResult.value=null
+            deezerRepository.search(query).onSuccess { fetchedData ->
+                _searchResult.value = fetchedData
+            }.onFailure { exception ->
+                val errorState = when (exception) {
+                    is SocketTimeoutException -> {
+                        // `Log.e` is used to log errors to the console.
+                        Log.e("myApp", "Connection timed out: ${exception.message}")
+                        ErrorState.TimeoutError
+                    }
+
+                    is IOException -> {
+                        Log.e("myApp", "No internet connection: ${exception.message}")
+                        ErrorState.NetworkError
+                    }
+
+                    else -> {
+                        Log.e("myApp", "Error fetching items: ${exception.message}")
+                        ErrorState.UnknownError
+                    }
+                }
+            }
+        }
     }
 
     fun getTrendingSongs(){

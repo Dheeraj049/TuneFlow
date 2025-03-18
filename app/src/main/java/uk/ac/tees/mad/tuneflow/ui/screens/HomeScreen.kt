@@ -2,6 +2,7 @@ package uk.ac.tees.mad.tuneflow.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +33,8 @@ import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -78,6 +81,7 @@ fun HomeScreen(
     var query by rememberSaveable { mutableStateOf("") }
 
     val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
+    val searchResult by viewmodel.searchResult.collectAsStateWithLifecycle()
 
     val trendingSongsAndAlbumListState1 = rememberLazyListState()
     val trendingSongsAndAlbumListState2 = rememberLazyListState()
@@ -135,12 +139,12 @@ fun HomeScreen(
                                 query = query,
                                 onQueryChange = { newQuery ->
                                     query = newQuery
-                                    //viewModel.searchProducts(newQuery)
+                                    viewmodel.updateSearchText(newQuery)
                                 },
                                 onSearch = { newQuery ->
-                                    expanded = false
+                                    //expanded = false
 //                                    query = newQuery
-//                                    viewModel.searchProducts(newQuery)
+                                    viewmodel.search(newQuery)
                                 },
                                 expanded = expanded,
                                 onExpandedChange = { expanded = it },
@@ -169,10 +173,24 @@ fun HomeScreen(
                         expanded = expanded,
                         onExpandedChange = { expanded = it },
                     ) {
-                        if (query.isNotBlank()) {
+                        if (query.isNotBlank() && searchResult!=null) {
                             LazyColumn(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
+                                items(searchResult!!.data){result->
+                                    ListItem(headlineContent = { Text(result.title) },
+                                        colors = ListItemDefaults.colors(
+                                            MaterialTheme.colorScheme.surfaceContainerHigh
+                                        ),
+                                        modifier = Modifier.clickable {
+                                        },
+                                        leadingContent = {
+                                            Icon(
+                                                Icons.Filled.Search, contentDescription = null
+                                            )
+                                        })
+
+                                }
                             }
                         } else {
                             Column(
