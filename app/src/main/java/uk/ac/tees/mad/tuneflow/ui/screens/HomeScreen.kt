@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
@@ -291,6 +292,17 @@ fun HomeScreen(
                                                     softWrap = true,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                IconButton(
+                                                    onClick = {
+
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.Add,
+                                                        contentDescription = "Add"
+                                                    )
+                                                }
 
                                             }
                                         }
@@ -347,6 +359,17 @@ fun HomeScreen(
                                                     softWrap = true,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                IconButton(
+                                                    onClick = {
+
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Filled.Add,
+                                                        contentDescription = "Add"
+                                                    )
+                                                }
                                             }
                                         }
                                     }
