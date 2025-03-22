@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import uk.ac.tees.mad.tuneflow.ui.screens.HomeScreen
+import uk.ac.tees.mad.tuneflow.ui.screens.NowPlayingScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.SignInScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.SignUpScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.SplashScreen
@@ -36,9 +37,9 @@ fun SetupNavGraph(navController: NavHostController) {
                 composable<Dest.HomeScreen> {
                     HomeScreen(navController = navController)
                 }
-//            composable<Dest.NowPlayingScreen> {
-//                NowPlayingScreen(navController = navController)
-//            }
+            composable<Dest.NowPlayingScreen> {
+                NowPlayingScreen(navController = navController)
+            }
 //            composable<Dest.PlaylistScreen> {
 //                PlaylistScreen(
 //                    navController = navController

@@ -11,6 +11,7 @@ import uk.ac.tees.mad.tuneflow.model.retrofit.DeezerRetrofitInstance
 import uk.ac.tees.mad.tuneflow.model.serviceapi.DeezerApiService
 import uk.ac.tees.mad.tuneflow.model.utils.NetworkConnectivityManager
 import uk.ac.tees.mad.tuneflow.viewmodel.HomeScreenViewModel
+import uk.ac.tees.mad.tuneflow.viewmodel.NowPlayingScreenViewModel
 import uk.ac.tees.mad.tuneflow.viewmodel.SignInScreenViewModel
 import uk.ac.tees.mad.tuneflow.viewmodel.SignUpScreenViewModel
 import uk.ac.tees.mad.tuneflow.viewmodel.SplashScreenViewModel
@@ -32,4 +33,5 @@ val appModule = module {
     viewModelOf(::SignInScreenViewModel)
     viewModelOf(::SignUpScreenViewModel)
     viewModelOf(::HomeScreenViewModel)
+    viewModelOf(::NowPlayingScreenViewModel)
 }

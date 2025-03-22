@@ -12,7 +12,9 @@ import uk.ac.tees.mad.tuneflow.model.dataclass.ApiPlaylistResponse
 import uk.ac.tees.mad.tuneflow.model.dataclass.ApiSearchResponse
 import uk.ac.tees.mad.tuneflow.model.dataclass.AuthResult
 import uk.ac.tees.mad.tuneflow.model.dataclass.ErrorState
-import uk.ac.tees.mad.tuneflow.model.dataclass.UiState
+import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateSearch
+import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateTrendingAlbums
+import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateTrendingSongs
 import uk.ac.tees.mad.tuneflow.model.dataclass.UserData
 import uk.ac.tees.mad.tuneflow.model.dataclass.UserDetails
 import uk.ac.tees.mad.tuneflow.model.repository.AuthRepository
@@ -33,8 +35,14 @@ class HomeScreenViewModel(
     private val _userData = MutableStateFlow(UserData())
     val userData: StateFlow<UserData> = _userData.asStateFlow()
 
-    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
-    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    private val _uiStateTrendingAlbums = MutableStateFlow<UiStateTrendingAlbums>(UiStateTrendingAlbums.Loading)
+    val uiStateTrendingAlbums: StateFlow<UiStateTrendingAlbums> = _uiStateTrendingAlbums.asStateFlow()
+
+    private val _uiStateTrendingSongs = MutableStateFlow<UiStateTrendingSongs>(UiStateTrendingSongs.Loading)
+    val uiStateTrendingSongs: StateFlow<UiStateTrendingSongs> = _uiStateTrendingSongs.asStateFlow()
+
+    private val _uiStateSearch = MutableStateFlow<UiStateSearch>(UiStateSearch.Loading)
+    val uiStateSearch: StateFlow<UiStateSearch> = _uiStateSearch.asStateFlow()
 
     private val _trendingSongs = MutableStateFlow<ApiPlaylistResponse?>(null)
     val trendingSongs: StateFlow<ApiPlaylistResponse?> = _trendingSongs.asStateFlow()
@@ -80,8 +88,9 @@ class HomeScreenViewModel(
 
     fun search(query: String) {
         viewModelScope.launch {
-            //_searchResult.value=null
+            _uiStateSearch.value = UiStateSearch.Loading
             deezerRepository.search(query).onSuccess { fetchedData ->
+                _uiStateSearch.value = UiStateSearch.Success(fetchedData)
                 _searchResult.value = fetchedData
             }.onFailure { exception ->
                 val errorState = when (exception) {
@@ -101,15 +110,16 @@ class HomeScreenViewModel(
                         ErrorState.UnknownError
                     }
                 }
+                _uiStateSearch.value = UiStateSearch.Error(errorState, exception.message.toString())
             }
         }
     }
 
     fun getTrendingSongs(){
         viewModelScope.launch{
-            _uiState.value = UiState.Loading
+            _uiStateTrendingSongs.value = UiStateTrendingSongs.Loading
             deezerRepository.topSongs().onSuccess {fetchedData ->
-                _uiState.value = UiState.Success(fetchedData)
+                _uiStateTrendingSongs.value = UiStateTrendingSongs.Success(fetchedData)
                 _trendingSongs.value= fetchedData
             }.onFailure {exception ->
                 val errorState = when (exception) {
@@ -129,16 +139,16 @@ class HomeScreenViewModel(
                         ErrorState.UnknownError
                     }
                 }
-                _uiState.value = UiState.Error(errorState,exception.message.toString())
+                _uiStateTrendingSongs.value = UiStateTrendingSongs.Error(errorState,exception.message.toString())
             }
         }
     }
 
     fun getTrendingAlbums(){
         viewModelScope.launch{
-            _uiState.value = UiState.Loading
+            _uiStateTrendingAlbums.value = UiStateTrendingAlbums.Loading
             deezerRepository.topWorldwide().onSuccess {fetchedData ->
-                //_uiState.value = UiState.Success(fetchedData)
+                _uiStateTrendingAlbums.value = UiStateTrendingAlbums.Success(fetchedData)
                 _trendingAlbums.value= fetchedData
             }.onFailure {exception ->
                 val errorState = when (exception) {
@@ -158,7 +168,7 @@ class HomeScreenViewModel(
                         ErrorState.UnknownError
                     }
                 }
-                _uiState.value = UiState.Error(errorState,exception.message.toString())
+                _uiStateTrendingAlbums.value = UiStateTrendingAlbums.Error(errorState,exception.message.toString())
             }
 
         }

@@ -93,11 +93,15 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    // Material 3
     implementation("androidx.compose.material3:material3:1.3.1")
     implementation("androidx.compose.material3:material3-android:1.3.1")
     implementation("androidx.compose.ui:ui:1.7.7")
 
-
+    // Media 3 ExoPlayer
+    implementation ("androidx.media3:media3-exoplayer:1.5.1")
+    implementation ("androidx.media3:media3-ui:1.5.1")
+    implementation ("androidx.media3:media3-common:1.5.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
