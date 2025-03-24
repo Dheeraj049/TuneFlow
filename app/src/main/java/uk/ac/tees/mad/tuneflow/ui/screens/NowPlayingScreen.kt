@@ -27,6 +27,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,9 +63,14 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun NowPlayingScreen(
     navController: NavHostController,
-    viewModel: NowPlayingScreenViewModel = koinViewModel()
+    trackId: String,
+    viewmodel: NowPlayingScreenViewModel = koinViewModel()
 ) {
-    val uiStateNowPlaying by viewModel.uiStateNowPlaying.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        viewmodel.getTrack(id = trackId)
+    }
+
+    val uiStateNowPlaying by viewmodel.uiStateNowPlaying.collectAsStateWithLifecycle()
     when (uiStateNowPlaying) {
         is UiStateNowPlaying.Error -> {
             Text(text = "Error")
@@ -73,7 +79,7 @@ fun NowPlayingScreen(
             Text(text = "Loading", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         }
         is UiStateNowPlaying.Success -> {
-            val track by viewModel.track.collectAsStateWithLifecycle()
+            val track by viewmodel.track.collectAsStateWithLifecycle()
             val context = LocalContext.current
             val exoPlayer = remember {
                 ExoPlayer.Builder(context).build().apply {
@@ -120,7 +126,7 @@ fun NowPlayingScreen(
                         SubcomposeAsyncImage(
                             model = ImageRequest
                                 .Builder(LocalContext.current)
-                                .data("https://cdn-images.dzcdn.net/images/cover/be682506145061814eddee648edb7c59/500x500-000000-80-0-0.jpg")
+                                .data(track!!.album.coverBig.toString())
                                 .crossfade(true)
                                 .build(),
                             loading = {

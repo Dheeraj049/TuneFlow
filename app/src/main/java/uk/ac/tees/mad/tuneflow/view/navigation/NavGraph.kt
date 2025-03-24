@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
 import uk.ac.tees.mad.tuneflow.ui.screens.HomeScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.NowPlayingScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.SignInScreen
@@ -38,7 +39,8 @@ fun SetupNavGraph(navController: NavHostController) {
                     HomeScreen(navController = navController)
                 }
             composable<Dest.NowPlayingScreen> {
-                NowPlayingScreen(navController = navController)
+                val args = it.toRoute<Dest.NowPlayingScreen>()
+                NowPlayingScreen(navController = navController, trackId = args.trackId)
             }
 //            composable<Dest.PlaylistScreen> {
 //                PlaylistScreen(

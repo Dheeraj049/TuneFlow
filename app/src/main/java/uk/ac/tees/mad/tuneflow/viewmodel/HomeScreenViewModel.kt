@@ -56,6 +56,9 @@ class HomeScreenViewModel(
     private val _searchResult= MutableStateFlow<ApiSearchResponse?>(null)
     val searchResult: StateFlow<ApiSearchResponse?> = _searchResult.asStateFlow()
 
+    private val _clickedTrackId= MutableStateFlow("")
+    val clickedTrackId: StateFlow<String> = _clickedTrackId.asStateFlow()
+
     init {
         fetchUserDetails()
         getTrendingAlbums()
@@ -84,6 +87,10 @@ class HomeScreenViewModel(
 
     fun updateSearchText(newText: String) {
         _searchText.value = newText
+    }
+
+    fun updateClickedTrackId(newId: String) {
+        _clickedTrackId.value = newId
     }
 
     fun search(query: String) {

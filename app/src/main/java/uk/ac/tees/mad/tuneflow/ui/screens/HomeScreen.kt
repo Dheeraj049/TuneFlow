@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -78,6 +79,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.room.util.TableInfo
 import coil3.compose.SubcomposeAsyncImage
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.tees.mad.tuneflow.view.navigation.SubGraph
@@ -108,6 +110,7 @@ fun HomeScreen(
     val uiStateTrendingSongs by viewmodel.uiStateTrendingSongs.collectAsStateWithLifecycle()
     val uiStateSearch by viewmodel.uiStateSearch.collectAsStateWithLifecycle()
     val searchResult by viewmodel.searchResult.collectAsStateWithLifecycle()
+
 
 
     Scaffold(modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -214,6 +217,10 @@ fun HomeScreen(
                                             MaterialTheme.colorScheme.surfaceContainerHigh
                                         ),
                                         modifier = Modifier.clickable {
+                                            viewmodel.updateClickedTrackId(result.id.toString())
+                                            navController.navigate(Dest.NowPlayingScreen(
+                                                trackId = viewmodel.clickedTrackId.value
+                                            ))
                                         },
                                         leadingContent = {
                                             Icon(
@@ -241,18 +248,32 @@ fun HomeScreen(
                 }
             }
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = {
-                navController.navigate(Dest.NowPlayingScreen)
-            }, icon = {
-                Icon(
-                    imageVector = Icons.Default.PlayCircleOutline,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-            }, text = { Text("Go to Now Playing Screen") })
-        },
-        floatingActionButtonPosition = FabPosition.Center
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    Button(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        onClick = {
+                            navController.navigate(Dest.NowPlayingScreen(
+                                trackId = viewmodel.clickedTrackId.value
+                            ))
+                        },
+                        enabled = if(viewmodel.clickedTrackId.value.isNotBlank()) true else false
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PlayCircleOutline,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column{
+                        Text("Go to Now Playing Screen")
+                            Text("Track ID: ${viewmodel.clickedTrackId.value}")
+                        }
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -275,7 +296,7 @@ fun HomeScreen(
                             modifier = Modifier.padding(8.dp),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold)
-                        TrendingAlbums(viewmodel = viewmodel)
+                        TrendingAlbums(viewmodel = viewmodel, navController = navController)
                         HorizontalDivider(
                             modifier = Modifier.padding(8.dp),
                             thickness = 2.dp
@@ -285,7 +306,7 @@ fun HomeScreen(
                             modifier = Modifier.padding(8.dp),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold)
-                        TrendingSongs(viewmodel = viewmodel)
+                        TrendingSongs(viewmodel = viewmodel, navController = navController)
                         HorizontalDivider(
                             modifier = Modifier.padding(8.dp),
                             thickness = 2.dp
@@ -301,7 +322,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun TrendingAlbums(viewmodel: HomeScreenViewModel){
+fun TrendingAlbums(viewmodel: HomeScreenViewModel, navController: NavHostController){
     val uiStateTrendingAlbums by viewmodel.uiStateTrendingAlbums.collectAsStateWithLifecycle()
     val trendingAlbumListState =  rememberLazyGridState()
     when (uiStateTrendingAlbums) {
@@ -322,7 +343,7 @@ fun TrendingAlbums(viewmodel: HomeScreenViewModel){
                 state = trendingAlbumListState
             ) {
                 items(trendingAlbumsData) { data ->
-                    TrendingAlbumsItem(data)
+                    TrendingAlbumsItem(data, viewmodel, navController)
                 }
             }
 
@@ -331,11 +352,15 @@ fun TrendingAlbums(viewmodel: HomeScreenViewModel){
 }
 
 @Composable
-fun TrendingAlbumsItem(albums: DaumP){
+fun TrendingAlbumsItem(albums: DaumP, viewmodel: HomeScreenViewModel, navController: NavHostController){
     ElevatedCard(modifier = Modifier.width(300.dp),
         colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.surfaceContainerHighest),
         onClick = {
             //TODO: Navigate to detail page
+            viewmodel.updateClickedTrackId(albums.id.toString())
+            navController.navigate(Dest.NowPlayingScreen(
+                trackId = viewmodel.clickedTrackId.value
+            ))
         }) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -402,7 +427,7 @@ fun TrendingAlbumsItem(albums: DaumP){
 }
 
 @Composable
-fun TrendingSongs(viewmodel: HomeScreenViewModel){
+fun TrendingSongs(viewmodel: HomeScreenViewModel, navController: NavHostController){
     val uiStateTrendingSongs by viewmodel.uiStateTrendingSongs.collectAsStateWithLifecycle()
     val trendingSongsListState =  rememberLazyGridState()
     when (uiStateTrendingSongs) {
@@ -423,7 +448,7 @@ fun TrendingSongs(viewmodel: HomeScreenViewModel){
                 state = trendingSongsListState
             ) {
                 items(trendingSongsData) { data ->
-                    TrendingSongsItem(data)
+                    TrendingSongsItem(data, viewmodel, navController)
                 }
             }
 
@@ -433,11 +458,15 @@ fun TrendingSongs(viewmodel: HomeScreenViewModel){
 }
 
 @Composable
-fun TrendingSongsItem(songs: DaumP){
+fun TrendingSongsItem(songs: DaumP, viewmodel: HomeScreenViewModel, navController: NavHostController){
     ElevatedCard(modifier = Modifier.width(300.dp),
         colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.surfaceContainerHighest),
         onClick = {
             //TODO: Navigate to detail page
+            viewmodel.updateClickedTrackId(songs.id.toString())
+            navController.navigate(Dest.NowPlayingScreen(
+                trackId = viewmodel.clickedTrackId.value
+            ))
         }) {
         Row(
             modifier = Modifier.fillMaxWidth(),

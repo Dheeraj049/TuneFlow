@@ -24,7 +24,7 @@ sealed class Dest {
     data object HomeScreen : Dest()
 
     @Serializable
-    data object NowPlayingScreen : Dest()
+    data class NowPlayingScreen(val trackId: String) : Dest()
 
     @Serializable
     data object PlaylistScreen : Dest()

@@ -27,9 +27,6 @@ class NowPlayingScreenViewModel(
     private val _track = MutableStateFlow<Track?>(null)
     val track: StateFlow<Track?> = _track.asStateFlow()
 
-    init {
-        getTrack("6461440")
-    }
 
     fun getTrack(id: String) {
         viewModelScope.launch {

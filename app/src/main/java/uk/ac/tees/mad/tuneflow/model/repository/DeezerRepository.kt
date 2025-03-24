@@ -79,7 +79,7 @@ class DeezerRepository(private val apiService:DeezerApiService ) {
     suspend fun getTrack(id: String): Result<Track> {
         return withContext(Dispatchers.IO) {
             try {
-                val response = apiService.getTrack()
+                val response = apiService.getTrack(id)
                 // Assign a unique ID to each item based on its index in the list.
                 Result.success(response)
             } catch (e: IOException) {
