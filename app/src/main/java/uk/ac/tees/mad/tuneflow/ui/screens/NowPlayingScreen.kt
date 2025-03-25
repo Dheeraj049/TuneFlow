@@ -16,17 +16,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -53,13 +60,16 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.tees.mad.tuneflow.R
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateNowPlaying
+import uk.ac.tees.mad.tuneflow.view.navigation.Dest
 import uk.ac.tees.mad.tuneflow.view.utils.shimmerEffect
 import uk.ac.tees.mad.tuneflow.viewmodel.NowPlayingScreenViewModel
 import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingScreen(
     navController: NavHostController,
@@ -73,10 +83,52 @@ fun NowPlayingScreen(
     val uiStateNowPlaying by viewmodel.uiStateNowPlaying.collectAsStateWithLifecycle()
     when (uiStateNowPlaying) {
         is UiStateNowPlaying.Error -> {
-            Text(text = "Error")
+            Scaffold(modifier = Modifier.fillMaxSize(),
+                topBar = {TopAppBar(
+                    title = {
+                        Text("Now Playing", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            navController.popBackStack()
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    }
+                )}
+            ) { innerPadding ->
+                Column(modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "Error")}
+            }
         }
         is UiStateNowPlaying.Loading -> {
-            Text(text = "Loading", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            Scaffold(modifier = Modifier.fillMaxSize(),
+                topBar = {TopAppBar(
+                    title = {
+                        Text("Now Playing", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            navController.popBackStack()
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    }
+                )}
+            ) { innerPadding ->
+                Column(modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator()
+            }}
         }
         is UiStateNowPlaying.Success -> {
             val track by viewmodel.track.collectAsStateWithLifecycle()
@@ -85,6 +137,19 @@ fun NowPlayingScreen(
                 ExoPlayer.Builder(context).build().apply {
                     setMediaItem(MediaItem.fromUri(Uri.parse(track?.preview)))
                     prepare()
+                }
+            }
+            DisposableEffect(Unit) {
+                onDispose {
+                    exoPlayer.release()
+                }
+            }
+
+            LaunchedEffect(track?.preview) {
+                track?.preview?.let { previewUrl ->
+                    val mediaItem = MediaItem.fromUri(previewUrl)
+                    exoPlayer.setMediaItem(mediaItem)
+                    exoPlayer.prepare()
                 }
             }
             var isPlaying by remember { mutableStateOf(false) }
@@ -113,7 +178,40 @@ fun NowPlayingScreen(
                 }
             })
 
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            LaunchedEffect(isPlaying) {
+                while (isPlaying) {
+                    currentPosition = exoPlayer.currentPosition.toFloat()
+                    delay(100) // Update every 100ms, adjust as needed
+                }
+            }
+
+            Scaffold(modifier = Modifier.fillMaxSize(),
+                topBar = {TopAppBar(
+                    title = {
+                        Text("Now Playing", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            navController.popBackStack()
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            navController.navigate(Dest.PlaylistScreen)
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                    }
+                )}
+            ) { innerPadding ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
