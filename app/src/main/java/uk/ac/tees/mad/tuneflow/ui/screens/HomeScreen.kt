@@ -33,13 +33,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ElevatedFilterChip
@@ -59,6 +63,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -89,9 +94,11 @@ import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import uk.ac.tees.mad.tuneflow.model.dataclass.DaumP
+import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateSearch
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateTrendingAlbums
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateTrendingSongs
 import uk.ac.tees.mad.tuneflow.view.navigation.Dest
+import uk.ac.tees.mad.tuneflow.view.utils.LoadingScreen
 import uk.ac.tees.mad.tuneflow.view.utils.shimmerEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,6 +118,10 @@ fun HomeScreen(
     val uiStateSearch by viewmodel.uiStateSearch.collectAsStateWithLifecycle()
     val searchResult by viewmodel.searchResult.collectAsStateWithLifecycle()
 
+    val trackId by viewmodel.clickedTrackId.collectAsStateWithLifecycle()
+    val trackName by viewmodel.trackName.collectAsStateWithLifecycle()
+
+    val favoriteTracks by viewmodel.favoriteTracks.collectAsStateWithLifecycle()
 
 
     Scaffold(modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -207,30 +218,74 @@ fun HomeScreen(
                         expanded = expanded,
                         onExpandedChange = { expanded = it },
                     ) {
+                        if(query.isBlank()){
+                            viewmodel.updateSearchResultToEmpty()
+                        }
                         if (query.isNotBlank() && searchResult!=null) {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                items(searchResult!!.data){result->
-                                    ListItem(headlineContent = { Text(result.title) },
-                                        colors = ListItemDefaults.colors(
-                                            MaterialTheme.colorScheme.surfaceContainerHigh
-                                        ),
-                                        modifier = Modifier.clickable {
-                                            viewmodel.updateClickedTrackId(result.id.toString())
-                                            navController.navigate(Dest.NowPlayingScreen(
-                                                trackId = viewmodel.clickedTrackId.value
-                                            ))
-                                        },
-                                        leadingContent = {
-                                            Icon(
-                                                Icons.Filled.Search, contentDescription = null
-                                            )
-                                        },
-                                        supportingContent = {
-                                            Text("${result.album.title} - ${result.artist.name}")
-                                        })
+                            when (uiStateSearch) {
+                                is UiStateSearch.Error ->{
+                                    Text(text = "Error", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                                }
+                                UiStateSearch.Loading ->{
+                                    Column(modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally){
+                                        Text(text = "Searching", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                                is UiStateSearch.Success ->{
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        items(searchResult!!.data){result->
+                                            ListItem(headlineContent = { Text(result.title) },
+                                                colors = ListItemDefaults.colors(
+                                                    MaterialTheme.colorScheme.surfaceContainerHigh
+                                                ),
+                                                modifier = Modifier.clickable {
+                                                    viewmodel.updateClickedTrackIdAndName(result.id.toString(), result.album.title)
+                                                    navController.navigate(Dest.NowPlayingScreen(
+                                                        trackId = viewmodel.clickedTrackId.value, flag = true
+                                                    ))
+                                                },
+                                                leadingContent = {
+                                                    Icon(
+                                                        Icons.Filled.PlayArrow, contentDescription = null
+                                                    )
+                                                },
+                                                trailingContent = {
+                                                    var check by remember { mutableStateOf(viewmodel.checkIsFavorite(result.id.toString())) }
+                                                    IconButton(
+                                                        onClick = {
+                                                            if(viewmodel.checkIsFavorite(result.id.toString())){
+                                                                viewmodel.removeFavoriteTrack(result.id.toString())
+                                                                check = false
+                                                            }
+                                                            else{
+                                                                check = true
+                                                                viewmodel.addFavoriteTrack(result.id.toString())
+                                                            }
 
+                                                        }
+                                                    ) {
+                                                        if(check){
+                                                            Icon(
+                                                                imageVector = Icons.Filled.Favorite,
+                                                                contentDescription = "Remove from favorite"
+                                                            )} else{
+                                                            Icon(
+                                                                imageVector = Icons.Outlined.FavoriteBorder,
+                                                                contentDescription = "Add to favorite"
+                                                            )}
+                                                    }
+                                                },
+                                                supportingContent = {
+                                                    Text("${result.album.title} - ${result.artist.name}")
+                                                })
+
+                                        }
+                                    }
                                 }
                             }
                         } else {
@@ -255,10 +310,10 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth().padding(8.dp),
                         onClick = {
                             navController.navigate(Dest.NowPlayingScreen(
-                                trackId = viewmodel.clickedTrackId.value
+                                trackId = viewmodel.clickedTrackId.value, flag = false
                             ))
                         },
-                        enabled = if(viewmodel.clickedTrackId.value.isNotBlank()) true else false
+                        enabled = if(favoriteTracks.isNotEmpty()) true else false
                     ) {
                         Icon(
                             imageVector = Icons.Default.PlayCircleOutline,
@@ -267,14 +322,23 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column{
-                        Text("Go to Now Playing Screen")
-                            Text("Track ID: ${viewmodel.clickedTrackId.value}")
+                        if(favoriteTracks.isEmpty()){
+                            Text("No favorite tracks found")
+                            Text("Add tracks to favorite to view now playing screen")
+                        } else{
+                            Text("Play Favorite Tracks")
+                        }
                         }
                     }
                 }
             )
         }
     ) { innerPadding ->
+
+        LaunchedEffect(Unit) {
+            viewmodel.fetchDataFromDB()
+        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -283,13 +347,13 @@ fun HomeScreen(
             item{
                 Column(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.Center
                 ){
                     if(uiStateTrendingAlbums is UiStateTrendingAlbums.Error || uiStateTrendingSongs is UiStateTrendingSongs.Error){
                         Text(text = "Error")
                     }
                     else if(uiStateTrendingAlbums is UiStateTrendingAlbums.Loading || uiStateTrendingSongs is UiStateTrendingSongs.Loading){
-                        Text(text = "Loading", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                        LoadingScreen()
                     }
                     if(uiStateTrendingAlbums is UiStateTrendingAlbums.Success && uiStateTrendingSongs is UiStateTrendingSongs.Success) {
                         Text(text = "Trending Albums",
@@ -353,13 +417,14 @@ fun TrendingAlbums(viewmodel: HomeScreenViewModel, navController: NavHostControl
 
 @Composable
 fun TrendingAlbumsItem(albums: DaumP, viewmodel: HomeScreenViewModel, navController: NavHostController){
+    var check by remember { mutableStateOf(viewmodel.checkIsFavorite(albums.id.toString())) }
     ElevatedCard(modifier = Modifier.width(300.dp),
         colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.surfaceContainerHighest),
         onClick = {
             //TODO: Navigate to detail page
-            viewmodel.updateClickedTrackId(albums.id.toString())
+            viewmodel.updateClickedTrackIdAndName(albums.id.toString(),albums.album.title)
             navController.navigate(Dest.NowPlayingScreen(
-                trackId = viewmodel.clickedTrackId.value
+                trackId = viewmodel.clickedTrackId.value, flag = true
             ))
         }) {
         Row(
@@ -415,12 +480,25 @@ fun TrendingAlbumsItem(albums: DaumP, viewmodel: HomeScreenViewModel, navControl
             }
             IconButton(
                 onClick = {
+                    if(viewmodel.checkIsFavorite(albums.id.toString())){
+                        viewmodel.removeFavoriteTrack(albums.id.toString())
+                        check = false
+                    }
+                    else{
+                        check = true
+                        viewmodel.addFavoriteTrack(albums.id.toString())
+                    }
                 }
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Add"
-                )
+                if(check){
+                    Icon(
+                        imageVector = Icons.Filled.Favorite,
+                        contentDescription = "Remove from favorite"
+                    )} else{
+                    Icon(
+                        imageVector = Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Add to favorite"
+                    )}
             }
         }
     }
@@ -459,13 +537,14 @@ fun TrendingSongs(viewmodel: HomeScreenViewModel, navController: NavHostControll
 
 @Composable
 fun TrendingSongsItem(songs: DaumP, viewmodel: HomeScreenViewModel, navController: NavHostController){
+    var check by remember { mutableStateOf(viewmodel.checkIsFavorite(songs.id.toString())) }
     ElevatedCard(modifier = Modifier.width(300.dp),
         colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.surfaceContainerHighest),
         onClick = {
             //TODO: Navigate to detail page
-            viewmodel.updateClickedTrackId(songs.id.toString())
+            viewmodel.updateClickedTrackIdAndName(songs.id.toString(),songs.album.title)
             navController.navigate(Dest.NowPlayingScreen(
-                trackId = viewmodel.clickedTrackId.value
+                trackId = viewmodel.clickedTrackId.value, flag = true
             ))
         }) {
         Row(
@@ -521,12 +600,26 @@ fun TrendingSongsItem(songs: DaumP, viewmodel: HomeScreenViewModel, navControlle
             }
             IconButton(
                 onClick = {
+                    if(viewmodel.checkIsFavorite(songs.id.toString())){
+                        viewmodel.removeFavoriteTrack(songs.id.toString())
+                        check = false
+                    }
+                    else{
+                        check = true
+                        viewmodel.addFavoriteTrack(songs.id.toString())
+                    }
+
                 }
             ) {
+                if(check){
+                    Icon(
+                        imageVector = Icons.Filled.Favorite,
+                        contentDescription = "Remove from favorite"
+                    )} else{
                 Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Add"
-                )
+                    imageVector = Icons.Outlined.FavoriteBorder,
+                    contentDescription = "Add to favorite"
+                )}
             }
         }
     }

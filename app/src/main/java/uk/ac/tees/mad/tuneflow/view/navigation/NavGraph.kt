@@ -41,7 +41,7 @@ fun SetupNavGraph(navController: NavHostController) {
                 }
             composable<Dest.NowPlayingScreen> {
                 val args = it.toRoute<Dest.NowPlayingScreen>()
-                NowPlayingScreen(navController = navController, trackId = args.trackId)
+                NowPlayingScreen(navController = navController, trackId = args.trackId, flag = args.flag)
             }
             composable<Dest.PlaylistScreen> {
                 PlaylistScreen(

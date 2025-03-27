@@ -1,7 +1,9 @@
 package uk.ac.tees.mad.tuneflow.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,20 +15,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,13 +46,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import org.koin.androidx.compose.koinViewModel
+import uk.ac.tees.mad.tuneflow.R
 import uk.ac.tees.mad.tuneflow.ui.screens.PlaylistCard
 import uk.ac.tees.mad.tuneflow.view.navigation.Dest
+import uk.ac.tees.mad.tuneflow.view.utils.shimmerEffect
+import uk.ac.tees.mad.tuneflow.viewmodel.PlaylistScreenViewModel
 import kotlin.collections.plus
 
 // Placeholder data class for a playlist
@@ -53,17 +73,8 @@ data class Playlist(val id: Int, val name: String, val songs: List<String>)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlaylistScreen(navController: NavHostController){
-    // Sample playlist data (replace with Room DB data)
-    var playlists by remember {
-        mutableStateOf(
-            listOf(
-                Playlist(1, "My Favorites", listOf("Song 1", "Song 2")),
-                Playlist(2, "Workout Mix", listOf("Song 3", "Song 4", "Song 5"))
-            )
-        )
-    }
-
+fun PlaylistScreen(navController: NavHostController, viewmodel: PlaylistScreenViewModel= koinViewModel()){
+    val favoriteTracks by viewmodel.favoriteTracks.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -99,6 +110,13 @@ fun PlaylistScreen(navController: NavHostController){
                 thickness = 2.dp
             )
             Spacer(modifier = Modifier.height(8.dp))
+            if (favoriteTracks.isEmpty()){
+                Text(text = "No favorite tracks found",
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            else{
 
             // Display the list of playlists
             LazyColumn(
@@ -106,15 +124,55 @@ fun PlaylistScreen(navController: NavHostController){
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                items(playlists) { playlist ->
-                    PlaylistCard(
-                        playlist = playlist,
-                        onDelete = {
-                            // Handle playlist deletion (update the list)
-                            playlists = playlists.filter { it.id != playlist.id }
-                        }
-                    )
+                items(favoriteTracks){track->
+                    ListItem(headlineContent = { Text(track.album.title) },
+                        colors = ListItemDefaults.colors(
+                            MaterialTheme.colorScheme.surfaceContainerHigh
+                        ),
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp)),
+                        leadingContent = {
+                            SubcomposeAsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current).data(track.album.cover).crossfade(true).size(100)
+                                    .build(),
+                                contentDescription = "Song Cover",
+                                loading = {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .shimmerEffect()
+                                    )
+                                },
+                                error = {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.placeholder),
+                                        contentDescription = "Error loading Image",
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.FillBounds
+                                    )
+                                },
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.FillBounds
+                            )
+                        },
+                        supportingContent = {
+                            Text("${track.artist.name}")
+                        },
+                        trailingContent = {
+                            IconButton(onClick = {
+                                viewmodel.removeFavoriteTrack(track.id.toString())
+                            }) {
+                                Icon(
+                                    Icons.Filled.Delete, contentDescription = null)
+                            }
+                        })
+
                 }
+            }
             }
         }
 

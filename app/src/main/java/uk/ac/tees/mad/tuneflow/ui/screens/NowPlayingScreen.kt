@@ -18,9 +18,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -74,10 +78,17 @@ import java.util.concurrent.TimeUnit
 fun NowPlayingScreen(
     navController: NavHostController,
     trackId: String,
+    flag: Boolean,
     viewmodel: NowPlayingScreenViewModel = koinViewModel()
 ) {
     LaunchedEffect(Unit) {
         viewmodel.getTrack(id = trackId)
+        viewmodel.fetchDataFromDB()
+        if(flag){
+        viewmodel.updateTrackIndex(-1)}
+        else{
+            viewmodel.updateTrackIndex(0)
+        }
     }
 
     val uiStateNowPlaying by viewmodel.uiStateNowPlaying.collectAsStateWithLifecycle()
@@ -132,6 +143,8 @@ fun NowPlayingScreen(
         }
         is UiStateNowPlaying.Success -> {
             val track by viewmodel.track.collectAsStateWithLifecycle()
+            val trackIndex by viewmodel.trackIndex.collectAsStateWithLifecycle()
+            val favoriteTracks by viewmodel.favoriteTracks.collectAsStateWithLifecycle()
             val context = LocalContext.current
             val exoPlayer = remember {
                 ExoPlayer.Builder(context).build().apply {
@@ -150,6 +163,7 @@ fun NowPlayingScreen(
                     val mediaItem = MediaItem.fromUri(previewUrl)
                     exoPlayer.setMediaItem(mediaItem)
                     exoPlayer.prepare()
+                    exoPlayer.play()
                 }
             }
             var isPlaying by remember { mutableStateOf(false) }
@@ -192,7 +206,11 @@ fun NowPlayingScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = {
-                            navController.popBackStack()
+                            navController.navigate(Dest.HomeScreen){
+                                popUpTo(Dest.HomeScreen){
+                                    inclusive = true
+                                }
+                            }
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Default.ArrowBack,
@@ -319,10 +337,25 @@ fun NowPlayingScreen(
                         )
                     )
                     Spacer(modifier = Modifier.height(32.dp))
-                    Box(
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        IconButton(
+                            onClick = {
+                                viewmodel.onPrev()
+                            },
+                            modifier = Modifier.size(72.dp),
+                            enabled = trackIndex>=1
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.SkipPrevious,
+                                contentDescription = "Previous",
+                                modifier = Modifier.size(72.dp),
+                                //tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
                         IconButton(
                             onClick = {
                                 if (isPlaying) {
@@ -339,6 +372,43 @@ fun NowPlayingScreen(
                                 modifier = Modifier.size(72.dp),
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
+                        }
+                        IconButton(
+                            onClick = {
+                                viewmodel.onNext()
+                            },
+                            modifier = Modifier.size(72.dp),
+                            enabled = trackIndex<=favoriteTracks.size-2
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.SkipNext,
+                                contentDescription = "Next",
+                                modifier = Modifier.size(72.dp),
+                                //tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        var check by remember { mutableStateOf(viewmodel.checkIsFavorite(track?.id.toString())) }
+                        if(!check){
+                        IconButton(
+                            onClick = {
+
+                                    check = true
+                                    viewmodel.addFavoriteTrack(track?.id.toString())
+
+
+                            },
+                            modifier = Modifier.size(72.dp)
+                        ) {
+                            if(!check){
+                                Icon(
+                                    imageVector = Icons.Outlined.FavoriteBorder,
+                                    contentDescription = "Add to favorite",
+                                    modifier = Modifier.size(72.dp)
+                                )
+                        }}
                         }
                     }
                 }

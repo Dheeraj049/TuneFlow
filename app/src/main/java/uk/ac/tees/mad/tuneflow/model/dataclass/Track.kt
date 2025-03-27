@@ -1,8 +1,12 @@
 package uk.ac.tees.mad.tuneflow.model.dataclass
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
+@Entity(tableName = "favorites")
 data class Track(
+    @PrimaryKey
     val id: Long,
     val readable: Boolean,
     val title: String,
