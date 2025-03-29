@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Explore
@@ -69,6 +70,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -100,6 +102,7 @@ import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateTrendingSongs
 import uk.ac.tees.mad.tuneflow.view.navigation.Dest
 import uk.ac.tees.mad.tuneflow.view.utils.LoadingScreen
 import uk.ac.tees.mad.tuneflow.view.utils.shimmerEffect
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -136,7 +139,7 @@ fun HomeScreen(
                         Image(
                             painter = painterResource(id= R.drawable.tuneflow_logo),
                             contentDescription = "TuneFlow Logo",
-                            colorFilter = if(isSystemInDarkTheme()) ColorFilter.tint(Color.White) else ColorFilter.tint(Color.Black)
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                         )
                     Text(
                         text = "TuneFlow",
@@ -148,10 +151,12 @@ fun HomeScreen(
                     }
                         },
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
+                    IconButton(onClick = {
+                        navController.navigate(Dest.ProfileScreen)
+                    }) {
                         Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Menu"
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "Profile Icon"
                         )
                     }
                 },

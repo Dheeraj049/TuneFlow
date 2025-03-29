@@ -19,6 +19,7 @@ import uk.ac.tees.mad.tuneflow.model.utils.NetworkConnectivityManager
 import uk.ac.tees.mad.tuneflow.viewmodel.HomeScreenViewModel
 import uk.ac.tees.mad.tuneflow.viewmodel.NowPlayingScreenViewModel
 import uk.ac.tees.mad.tuneflow.viewmodel.PlaylistScreenViewModel
+import uk.ac.tees.mad.tuneflow.viewmodel.ProfileScreenViewModel
 import uk.ac.tees.mad.tuneflow.viewmodel.SignInScreenViewModel
 import uk.ac.tees.mad.tuneflow.viewmodel.SignUpScreenViewModel
 import uk.ac.tees.mad.tuneflow.viewmodel.SplashScreenViewModel
@@ -55,4 +56,5 @@ val appModule = module {
     viewModelOf(::HomeScreenViewModel)
     viewModelOf(::NowPlayingScreenViewModel)
     viewModelOf(::PlaylistScreenViewModel)
+    viewModelOf(::ProfileScreenViewModel)
 }

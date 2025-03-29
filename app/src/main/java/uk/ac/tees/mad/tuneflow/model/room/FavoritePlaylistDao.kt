@@ -11,15 +11,18 @@ interface FavoritePlaylistDao{
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavorite(track: Track)
 
-    @Query("SELECT * FROM favorites")
-    suspend fun getAllFavorites(): List<Track>
+    @Query("UPDATE favorites SET user = :user WHERE user IS NULL")
+    suspend fun updateUsers(user: String)
 
-    @Query("DELETE FROM favorites WHERE id = :trackId")
-    suspend fun deleteFavorite(trackId: Long)
+    @Query("SELECT * FROM favorites WHERE user = :user")
+    suspend fun getAllFavorites(user: String): List<Track>
 
-    @Query("SELECT * FROM favorites WHERE id = :trackId")
-    suspend fun getFavoriteById(trackId: Long): Track?
+    @Query("DELETE FROM favorites WHERE id = :trackId AND user = :user")
+    suspend fun deleteFavorite(trackId: Long, user: String)
 
-    @Query("SELECT EXISTS (SELECT 1 FROM favorites WHERE id = :trackId)")
-    suspend fun isFavorite(trackId: Long): Boolean
+    @Query("SELECT * FROM favorites WHERE id = :trackId AND user = :user")
+    suspend fun getFavoriteById(trackId: Long, user: String): Track?
+
+    @Query("SELECT EXISTS (SELECT 1 FROM favorites WHERE id = :trackId AND user = :user)")
+    suspend fun isFavorite(trackId: Long, user: String): Boolean
 }

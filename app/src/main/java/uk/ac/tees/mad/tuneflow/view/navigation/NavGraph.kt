@@ -11,6 +11,7 @@ import androidx.navigation.toRoute
 import uk.ac.tees.mad.tuneflow.ui.screens.HomeScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.NowPlayingScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.PlaylistScreen
+import uk.ac.tees.mad.tuneflow.ui.screens.ProfileScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.SignInScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.SignUpScreen
 import uk.ac.tees.mad.tuneflow.ui.screens.SplashScreen
@@ -48,9 +49,9 @@ fun SetupNavGraph(navController: NavHostController) {
                     navController = navController
                 )
             }
-//            composable<Dest.ProfileScreen> {
-//                ProfileScreen(navController = navController)
-//            }
+            composable<Dest.ProfileScreen> {
+                ProfileScreen(navController = navController)
+            }
             }
         }
     }

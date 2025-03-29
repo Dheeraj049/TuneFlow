@@ -91,14 +91,14 @@ class HomeScreenViewModel(
                     }
                 }
             }
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites()
+            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
         }
     }
 
     fun fetchDataFromDB(){
         viewModelScope.launch {
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites()
+            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
             if(favoriteTracks.isNotEmpty())
             {updateClickedTrackIdAndName(favoriteTracks[0].id.toString(), favoriteTracks[0].title)}
@@ -125,8 +125,8 @@ class HomeScreenViewModel(
     fun addFavoriteTrack(id: String) {
         viewModelScope.launch {
             deezerRepository.getTrack(id).onSuccess { fetchedData ->
-                favoritePlaylistRepository.insertFavorite(fetchedData)
-                val favoriteTracks = favoritePlaylistRepository.getAllFavorites()
+                favoritePlaylistRepository.insertFavorite(fetchedData,_userData.value.userId.toString())
+                val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
                 _favoriteTracks.value = favoriteTracks
                 fetchDataFromDB()
             }
@@ -135,8 +135,8 @@ class HomeScreenViewModel(
 
     fun removeFavoriteTrack(id: String) {
         viewModelScope.launch {
-            favoritePlaylistRepository.deleteFavorite(id.toLong())
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites()
+            favoritePlaylistRepository.deleteFavorite(id.toLong(),_userData.value.userId.toString())
+            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
             fetchDataFromDB()
         }

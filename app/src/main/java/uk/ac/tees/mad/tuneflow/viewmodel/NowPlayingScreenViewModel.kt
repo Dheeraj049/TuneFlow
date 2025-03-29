@@ -6,11 +6,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import uk.ac.tees.mad.tuneflow.model.dataclass.AuthResult
 import uk.ac.tees.mad.tuneflow.model.dataclass.ErrorState
 import uk.ac.tees.mad.tuneflow.model.dataclass.Track
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateNowPlaying
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateTrendingAlbums
+import uk.ac.tees.mad.tuneflow.model.dataclass.UserData
+import uk.ac.tees.mad.tuneflow.model.dataclass.UserDetails
 import uk.ac.tees.mad.tuneflow.model.repository.AuthRepository
 import uk.ac.tees.mad.tuneflow.model.repository.DeezerRepository
 import uk.ac.tees.mad.tuneflow.model.repository.FavoritePlaylistRepository
@@ -21,6 +25,7 @@ import java.net.SocketTimeoutException
 class NowPlayingScreenViewModel(
     private val networkRepository: NetworkRepository,
     private val deezerRepository: DeezerRepository,
+    private val authRepository: AuthRepository,
     private val favoritePlaylistRepository: FavoritePlaylistRepository
 ): ViewModel() {
     private val _uiStateNowPlaying = MutableStateFlow<UiStateNowPlaying>(UiStateNowPlaying.Loading)
@@ -35,13 +40,35 @@ class NowPlayingScreenViewModel(
     private val _trackIndex = MutableStateFlow(-1)
     val trackIndex: StateFlow<Int> = _trackIndex.asStateFlow()
 
+    private val _userDetails = MutableStateFlow<AuthResult<UserDetails>>(AuthResult.Loading)
+    val userDetails: StateFlow<AuthResult<UserDetails>> = _userDetails.asStateFlow()
+
+    private val _userData = MutableStateFlow(UserData())
+    val userData: StateFlow<UserData> = _userData.asStateFlow()
+
     init {
+        fetchUserDetails()
         fetchDataFromDB()
+    }
+
+    private fun fetchUserDetails() {
+        viewModelScope.launch {
+            authRepository.getCurrentUserDetails().collect { result ->
+                _userDetails.value = result
+                if (result is AuthResult.Success) {
+                    _userData.update {
+                        it.copy(
+                            userDetails = result.data, userId = authRepository.getCurrentUserId()
+                        )
+                    }
+                }
+            }
+        }
     }
 
     fun fetchDataFromDB(){
         viewModelScope.launch {
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites()
+            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
         }
     }
@@ -57,8 +84,8 @@ class NowPlayingScreenViewModel(
     fun addFavoriteTrack(id: String) {
         viewModelScope.launch {
             deezerRepository.getTrack(id).onSuccess { fetchedData ->
-                favoritePlaylistRepository.insertFavorite(fetchedData)
-                val favoriteTracks = favoritePlaylistRepository.getAllFavorites()
+                favoritePlaylistRepository.insertFavorite(fetchedData,_userData.value.userId.toString())
+                val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
                 _favoriteTracks.value = favoriteTracks
                 fetchDataFromDB()
             }
@@ -67,8 +94,8 @@ class NowPlayingScreenViewModel(
 
     fun removeFavoriteTrack(id: String) {
         viewModelScope.launch {
-            favoritePlaylistRepository.deleteFavorite(id.toLong())
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites()
+            favoritePlaylistRepository.deleteFavorite(id.toLong(),_userData.value.userId.toString())
+            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
             fetchDataFromDB()
         }

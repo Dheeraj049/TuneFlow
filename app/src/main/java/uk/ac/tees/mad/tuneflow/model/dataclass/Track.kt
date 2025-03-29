@@ -6,7 +6,8 @@ import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "favorites")
 data class Track(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    val tableId: Int,
     val id: Long,
     val readable: Boolean,
     val title: String,
@@ -44,6 +45,7 @@ data class Track(
     val artist: ArtistT,
     val album: AlbumT,
     val type: String,
+    val user: String?=null,
 )
 
 data class Contributor(

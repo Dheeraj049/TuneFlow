@@ -7,9 +7,13 @@ import android.view.animation.OvershootInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import uk.ac.tees.mad.tuneflow.ui.screens.LocalIsDarkMode
 import uk.ac.tees.mad.tuneflow.ui.theme.TuneFlowTheme
 import uk.ac.tees.mad.tuneflow.view.navigation.SetupNavGraph
 
@@ -41,9 +45,15 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
-            TuneFlowTheme {
+            val sharedPreferences = getSharedPreferences("app_settings", MODE_PRIVATE)
+            val isDarkMode = remember {
+                mutableStateOf(sharedPreferences.getBoolean("dark_mode", true))
+            }
+            CompositionLocalProvider(LocalIsDarkMode provides isDarkMode) {
+            TuneFlowTheme(darkTheme = isDarkMode.value) {
                 val navController = rememberNavController()
                 SetupNavGraph(navController = navController)
+            }
             }
         }
     }
