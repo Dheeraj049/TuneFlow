@@ -256,9 +256,7 @@ fun SharedTransitionScope.SignUpScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.weight(1f)
                                     )
-                                    TextButton(
-                                        modifier = Modifier.weight(1f),
-                                        onClick = {
+                                    TextButton(modifier = Modifier.weight(1f), onClick = {
                                         navController.navigate(SubGraph.AuthGraph) {
                                             popUpTo(SubGraph.AuthGraph) {
                                                 inclusive = true

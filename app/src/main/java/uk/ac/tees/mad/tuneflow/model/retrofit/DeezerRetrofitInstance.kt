@@ -8,13 +8,14 @@ import uk.ac.tees.mad.tuneflow.model.serviceapi.DeezerApiService
 
 object DeezerRetrofitInstance {
     const val BASE_URL = "https://deezerdevs-deezer.p.rapidapi.com/"
-    fun create(): DeezerApiService{
+    fun create(): DeezerApiService {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
         val okHttpClient = OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
-        val retrofit = Retrofit.Builder().baseUrl(DeezerRetrofitInstance.BASE_URL).client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create()).build()
+        val retrofit =
+            Retrofit.Builder().baseUrl(BASE_URL).client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create()).build()
 
         return retrofit.create(DeezerApiService::class.java)
     }

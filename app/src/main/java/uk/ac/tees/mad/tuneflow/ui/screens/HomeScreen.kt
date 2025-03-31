@@ -3,14 +3,11 @@ package uk.ac.tees.mad.tuneflow.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,45 +16,33 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -66,15 +51,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -86,15 +69,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.room.util.TableInfo
 import coil3.compose.SubcomposeAsyncImage
-import org.koin.androidx.compose.koinViewModel
-import uk.ac.tees.mad.tuneflow.view.navigation.SubGraph
-import uk.ac.tees.mad.tuneflow.viewmodel.HomeScreenViewModel
-import uk.ac.tees.mad.tuneflow.R
-import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import org.koin.androidx.compose.koinViewModel
+import uk.ac.tees.mad.tuneflow.R
 import uk.ac.tees.mad.tuneflow.model.dataclass.DaumP
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateSearch
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateTrendingAlbums
@@ -102,6 +81,7 @@ import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateTrendingSongs
 import uk.ac.tees.mad.tuneflow.view.navigation.Dest
 import uk.ac.tees.mad.tuneflow.view.utils.LoadingScreen
 import uk.ac.tees.mad.tuneflow.view.utils.shimmerEffect
+import uk.ac.tees.mad.tuneflow.viewmodel.HomeScreenViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,7 +89,6 @@ import uk.ac.tees.mad.tuneflow.view.utils.shimmerEffect
 fun HomeScreen(
     navController: NavHostController, viewmodel: HomeScreenViewModel = koinViewModel()
 ) {
-    val userData by viewmodel.userData.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     var showSearchBar by remember { mutableStateOf(false) }
 
@@ -121,36 +100,34 @@ fun HomeScreen(
     val uiStateSearch by viewmodel.uiStateSearch.collectAsStateWithLifecycle()
     val searchResult by viewmodel.searchResult.collectAsStateWithLifecycle()
 
-    val trackId by viewmodel.clickedTrackId.collectAsStateWithLifecycle()
-    val trackName by viewmodel.trackName.collectAsStateWithLifecycle()
-
     val favoriteTracks by viewmodel.favoriteTracks.collectAsStateWithLifecycle()
 
 
-    Scaffold(modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+    Scaffold(modifier = Modifier
+        .fillMaxSize()
+        .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
-            TopAppBar(
-                title = {
+                TopAppBar(title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ){
+                    ) {
                         Image(
-                            painter = painterResource(id= R.drawable.tuneflow_logo),
+                            painter = painterResource(id = R.drawable.tuneflow_logo),
                             contentDescription = "TuneFlow Logo",
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                         )
-                    Text(
-                        text = "TuneFlow",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.headlineLarge
-                    )
+                        Text(
+                            text = "TuneFlow",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.headlineLarge
+                        )
                     }
-                        },
-                navigationIcon = {
+                }, navigationIcon = {
                     IconButton(onClick = {
                         navController.navigate(Dest.ProfileScreen)
                     }) {
@@ -159,26 +136,23 @@ fun HomeScreen(
                             contentDescription = "Profile Icon"
                         )
                     }
-                },
-                actions = {
+                }, actions = {
                     IconButton(onClick = {
                         showSearchBar = !showSearchBar
                     }) {
                         AnimatedVisibility(!showSearchBar) {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = "Search"
-                        )}
+                            Icon(
+                                imageVector = Icons.Filled.Search, contentDescription = "Search"
+                            )
+                        }
                         AnimatedVisibility(showSearchBar) {
                             Icon(
-                                imageVector = Icons.Filled.Close,
-                                contentDescription = "Close"
+                                imageVector = Icons.Filled.Close, contentDescription = "Close"
                             )
                         }
                     }
-                },
-                scrollBehavior = scrollBehavior
-            )
+                }, scrollBehavior = scrollBehavior
+                )
                 AnimatedVisibility(showSearchBar) {
                     DockedSearchBar(
                         modifier = Modifier
@@ -205,7 +179,7 @@ fun HomeScreen(
                                     )
                                 },
                                 trailingIcon = {
-                                    if(expanded){
+                                    if (expanded) {
                                         IconButton(onClick = {
                                             if (query.isNotBlank()) {
                                                 query = ""
@@ -216,73 +190,98 @@ fun HomeScreen(
 
                                         }) {
                                             Icon(Icons.Default.Close, contentDescription = null)
-                                        }}
+                                        }
+                                    }
 
                                 })
                         },
                         expanded = expanded,
                         onExpandedChange = { expanded = it },
                     ) {
-                        if(query.isBlank()){
+                        if (query.isBlank()) {
                             viewmodel.updateSearchResultToEmpty()
                         }
-                        if (query.isNotBlank() && searchResult!=null) {
+                        if (query.isNotBlank() && searchResult != null) {
                             when (uiStateSearch) {
-                                is UiStateSearch.Error ->{
-                                    Text(text = "Error", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                                is UiStateSearch.Error -> {
+                                    Text(
+                                        text = "Error",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
-                                UiStateSearch.Loading ->{
-                                    Column(modifier = Modifier.fillMaxWidth(),
+
+                                UiStateSearch.Loading -> {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
                                         verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally){
-                                        Text(text = "Searching", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "Searching",
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.Center
+                                        )
                                         CircularProgressIndicator()
                                     }
                                 }
-                                is UiStateSearch.Success ->{
+
+                                is UiStateSearch.Success -> {
                                     LazyColumn(
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        items(searchResult!!.data){result->
+                                        items(searchResult!!.data) { result ->
                                             ListItem(headlineContent = { Text(result.title) },
                                                 colors = ListItemDefaults.colors(
                                                     MaterialTheme.colorScheme.surfaceContainerHigh
                                                 ),
                                                 modifier = Modifier.clickable {
-                                                    viewmodel.updateClickedTrackIdAndName(result.id.toString(), result.album.title)
-                                                    navController.navigate(Dest.NowPlayingScreen(
-                                                        trackId = viewmodel.clickedTrackId.value, flag = true
-                                                    ))
+                                                    viewmodel.updateClickedTrackIdAndName(
+                                                        result.id.toString(),
+                                                        result.album.title
+                                                    )
+                                                    navController.navigate(
+                                                        Dest.NowPlayingScreen(
+                                                            trackId = viewmodel.clickedTrackId.value,
+                                                            flag = true
+                                                        )
+                                                    )
                                                 },
                                                 leadingContent = {
                                                     Icon(
-                                                        Icons.Filled.PlayArrow, contentDescription = null
+                                                        Icons.Filled.PlayArrow,
+                                                        contentDescription = null
                                                     )
                                                 },
                                                 trailingContent = {
-                                                    var check by remember { mutableStateOf(viewmodel.checkIsFavorite(result.id.toString())) }
-                                                    IconButton(
-                                                        onClick = {
-                                                            if(viewmodel.checkIsFavorite(result.id.toString())){
-                                                                viewmodel.removeFavoriteTrack(result.id.toString())
-                                                                check = false
-                                                            }
-                                                            else{
-                                                                check = true
-                                                                viewmodel.addFavoriteTrack(result.id.toString())
-                                                            }
-
+                                                    var check by remember {
+                                                        mutableStateOf(
+                                                            viewmodel.checkIsFavorite(
+                                                                result.id.toString()
+                                                            )
+                                                        )
+                                                    }
+                                                    IconButton(onClick = {
+                                                        if (viewmodel.checkIsFavorite(result.id.toString())) {
+                                                            viewmodel.removeFavoriteTrack(result.id.toString())
+                                                            check = false
+                                                        } else {
+                                                            check = true
+                                                            viewmodel.addFavoriteTrack(result.id.toString())
                                                         }
-                                                    ) {
-                                                        if(check){
+
+                                                    }) {
+                                                        if (check) {
                                                             Icon(
                                                                 imageVector = Icons.Filled.Favorite,
                                                                 contentDescription = "Remove from favorite"
-                                                            )} else{
+                                                            )
+                                                        } else {
                                                             Icon(
                                                                 imageVector = Icons.Outlined.FavoriteBorder,
                                                                 contentDescription = "Add to favorite"
-                                                            )}
+                                                            )
+                                                        }
                                                     }
                                                 },
                                                 supportingContent = {
@@ -309,36 +308,35 @@ fun HomeScreen(
             }
         },
         bottomBar = {
-            BottomAppBar(
-                actions = {
-                    Button(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        onClick = {
-                            navController.navigate(Dest.NowPlayingScreen(
+            BottomAppBar(actions = {
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp), onClick = {
+                        navController.navigate(
+                            Dest.NowPlayingScreen(
                                 trackId = viewmodel.clickedTrackId.value, flag = false
-                            ))
-                        },
-                        enabled = if(favoriteTracks.isNotEmpty()) true else false
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayCircleOutline,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
+                            )
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column{
-                        if(favoriteTracks.isEmpty()){
+                    }, enabled = favoriteTracks.isNotEmpty()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayCircleOutline,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        if (favoriteTracks.isEmpty()) {
                             Text("No favorite tracks found")
                             Text("Add tracks to favorite to view now playing screen")
-                        } else{
+                        } else {
                             Text("Play Favorite Tracks")
-                        }
                         }
                     }
                 }
-            )
-        }
-    ) { innerPadding ->
+            })
+        }) { innerPadding ->
 
         LaunchedEffect(Unit) {
             viewmodel.fetchDataFromDB()
@@ -349,36 +347,36 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            item{
+            item {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center
-                ){
-                    if(uiStateTrendingAlbums is UiStateTrendingAlbums.Error || uiStateTrendingSongs is UiStateTrendingSongs.Error){
+                    modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center
+                ) {
+                    if (uiStateTrendingAlbums is UiStateTrendingAlbums.Error || uiStateTrendingSongs is UiStateTrendingSongs.Error) {
                         Text(text = "Error")
-                    }
-                    else if(uiStateTrendingAlbums is UiStateTrendingAlbums.Loading || uiStateTrendingSongs is UiStateTrendingSongs.Loading){
+                    } else if (uiStateTrendingAlbums is UiStateTrendingAlbums.Loading || uiStateTrendingSongs is UiStateTrendingSongs.Loading) {
                         LoadingScreen()
                     }
-                    if(uiStateTrendingAlbums is UiStateTrendingAlbums.Success && uiStateTrendingSongs is UiStateTrendingSongs.Success) {
-                        Text(text = "Trending Albums",
+                    if (uiStateTrendingAlbums is UiStateTrendingAlbums.Success && uiStateTrendingSongs is UiStateTrendingSongs.Success) {
+                        Text(
+                            text = "Trending Albums",
                             modifier = Modifier.padding(8.dp),
                             style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold)
+                            fontWeight = FontWeight.Bold
+                        )
                         TrendingAlbums(viewmodel = viewmodel, navController = navController)
                         HorizontalDivider(
-                            modifier = Modifier.padding(8.dp),
-                            thickness = 2.dp
+                            modifier = Modifier.padding(8.dp), thickness = 2.dp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = "Trending Songs",
+                        Text(
+                            text = "Trending Songs",
                             modifier = Modifier.padding(8.dp),
                             style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold)
+                            fontWeight = FontWeight.Bold
+                        )
                         TrendingSongs(viewmodel = viewmodel, navController = navController)
                         HorizontalDivider(
-                            modifier = Modifier.padding(8.dp),
-                            thickness = 2.dp
+                            modifier = Modifier.padding(8.dp), thickness = 2.dp
                         )
                         Spacer(modifier = Modifier.height(80.dp))
                     }
@@ -391,22 +389,27 @@ fun HomeScreen(
 }
 
 @Composable
-fun TrendingAlbums(viewmodel: HomeScreenViewModel, navController: NavHostController){
+fun TrendingAlbums(viewmodel: HomeScreenViewModel, navController: NavHostController) {
     val uiStateTrendingAlbums by viewmodel.uiStateTrendingAlbums.collectAsStateWithLifecycle()
-    val trendingAlbumListState =  rememberLazyGridState()
+    val trendingAlbumListState = rememberLazyGridState()
     when (uiStateTrendingAlbums) {
         is UiStateTrendingAlbums.Error -> {
             Text(text = "Error")
         }
+
         UiStateTrendingAlbums.Loading -> {
             Text(text = "Loading", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         }
+
         is UiStateTrendingAlbums.Success -> {
             val trendingAlbums by viewmodel.trendingAlbums.collectAsStateWithLifecycle()
             val trendingAlbumsData = trendingAlbums?.tracks?.data!!
             LazyHorizontalGrid(
                 rows = GridCells.Fixed(5),
-                modifier = Modifier.fillMaxWidth().padding(8.dp).height(532.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .height(532.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 state = trendingAlbumListState
@@ -421,24 +424,29 @@ fun TrendingAlbums(viewmodel: HomeScreenViewModel, navController: NavHostControl
 }
 
 @Composable
-fun TrendingAlbumsItem(albums: DaumP, viewmodel: HomeScreenViewModel, navController: NavHostController){
+fun TrendingAlbumsItem(
+    albums: DaumP,
+    viewmodel: HomeScreenViewModel,
+    navController: NavHostController
+) {
     var check by remember { mutableStateOf(viewmodel.checkIsFavorite(albums.id.toString())) }
     ElevatedCard(modifier = Modifier.width(300.dp),
         colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.surfaceContainerHighest),
         onClick = {
             //TODO: Navigate to detail page
-            viewmodel.updateClickedTrackIdAndName(albums.id.toString(),albums.album.title)
-            navController.navigate(Dest.NowPlayingScreen(
-                trackId = viewmodel.clickedTrackId.value, flag = true
-            ))
+            viewmodel.updateClickedTrackIdAndName(albums.id.toString(), albums.album.title)
+            navController.navigate(
+                Dest.NowPlayingScreen(
+                    trackId = viewmodel.clickedTrackId.value, flag = true
+                )
+            )
         }) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ){
+            modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+        ) {
             SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current).data(albums.album.cover).crossfade(true).size(100)
-                    .build(),
+                model = ImageRequest.Builder(LocalContext.current).data(albums.album.cover)
+                    .crossfade(true).size(100).build(),
                 contentDescription = "Album Cover",
                 loading = {
                     Box(
@@ -475,57 +483,61 @@ fun TrendingAlbumsItem(albums: DaumP, viewmodel: HomeScreenViewModel, navControl
                     softWrap = true,
                     overflow = TextOverflow.Ellipsis
                 )
-            Text(
-                text = albums.artist.name,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(4.dp),
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis
-            )
+                Text(
+                    text = albums.artist.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(4.dp),
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
-            IconButton(
-                onClick = {
-                    if(viewmodel.checkIsFavorite(albums.id.toString())){
-                        viewmodel.removeFavoriteTrack(albums.id.toString())
-                        check = false
-                    }
-                    else{
-                        check = true
-                        viewmodel.addFavoriteTrack(albums.id.toString())
-                    }
+            IconButton(onClick = {
+                if (viewmodel.checkIsFavorite(albums.id.toString())) {
+                    viewmodel.removeFavoriteTrack(albums.id.toString())
+                    check = false
+                } else {
+                    check = true
+                    viewmodel.addFavoriteTrack(albums.id.toString())
                 }
-            ) {
-                if(check){
+            }) {
+                if (check) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Remove from favorite"
-                    )} else{
+                    )
+                } else {
                     Icon(
                         imageVector = Icons.Outlined.FavoriteBorder,
                         contentDescription = "Add to favorite"
-                    )}
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun TrendingSongs(viewmodel: HomeScreenViewModel, navController: NavHostController){
+fun TrendingSongs(viewmodel: HomeScreenViewModel, navController: NavHostController) {
     val uiStateTrendingSongs by viewmodel.uiStateTrendingSongs.collectAsStateWithLifecycle()
-    val trendingSongsListState =  rememberLazyGridState()
+    val trendingSongsListState = rememberLazyGridState()
     when (uiStateTrendingSongs) {
         is UiStateTrendingSongs.Error -> {
             Text(text = "Error")
         }
+
         UiStateTrendingSongs.Loading -> {
             Text(text = "Loading", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         }
-        is UiStateTrendingSongs.Success ->{
+
+        is UiStateTrendingSongs.Success -> {
             val trendingSongs by viewmodel.trendingSongs.collectAsStateWithLifecycle()
             val trendingSongsData = trendingSongs?.tracks?.data!!
             LazyHorizontalGrid(
                 rows = GridCells.Fixed(5),
-                modifier = Modifier.fillMaxWidth().padding(8.dp).height(532.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .height(532.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 state = trendingSongsListState
@@ -541,24 +553,29 @@ fun TrendingSongs(viewmodel: HomeScreenViewModel, navController: NavHostControll
 }
 
 @Composable
-fun TrendingSongsItem(songs: DaumP, viewmodel: HomeScreenViewModel, navController: NavHostController){
+fun TrendingSongsItem(
+    songs: DaumP,
+    viewmodel: HomeScreenViewModel,
+    navController: NavHostController
+) {
     var check by remember { mutableStateOf(viewmodel.checkIsFavorite(songs.id.toString())) }
     ElevatedCard(modifier = Modifier.width(300.dp),
         colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.surfaceContainerHighest),
         onClick = {
             //TODO: Navigate to detail page
-            viewmodel.updateClickedTrackIdAndName(songs.id.toString(),songs.album.title)
-            navController.navigate(Dest.NowPlayingScreen(
-                trackId = viewmodel.clickedTrackId.value, flag = true
-            ))
+            viewmodel.updateClickedTrackIdAndName(songs.id.toString(), songs.album.title)
+            navController.navigate(
+                Dest.NowPlayingScreen(
+                    trackId = viewmodel.clickedTrackId.value, flag = true
+                )
+            )
         }) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ){
+            modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+        ) {
             SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current).data(songs.album.cover).crossfade(true).size(100)
-                    .build(),
+                model = ImageRequest.Builder(LocalContext.current).data(songs.album.cover)
+                    .crossfade(true).size(100).build(),
                 contentDescription = "Song Cover",
                 loading = {
                     Box(
@@ -603,28 +620,27 @@ fun TrendingSongsItem(songs: DaumP, viewmodel: HomeScreenViewModel, navControlle
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            IconButton(
-                onClick = {
-                    if(viewmodel.checkIsFavorite(songs.id.toString())){
-                        viewmodel.removeFavoriteTrack(songs.id.toString())
-                        check = false
-                    }
-                    else{
-                        check = true
-                        viewmodel.addFavoriteTrack(songs.id.toString())
-                    }
-
+            IconButton(onClick = {
+                if (viewmodel.checkIsFavorite(songs.id.toString())) {
+                    viewmodel.removeFavoriteTrack(songs.id.toString())
+                    check = false
+                } else {
+                    check = true
+                    viewmodel.addFavoriteTrack(songs.id.toString())
                 }
-            ) {
-                if(check){
+
+            }) {
+                if (check) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
                         contentDescription = "Remove from favorite"
-                    )} else{
-                Icon(
-                    imageVector = Icons.Outlined.FavoriteBorder,
-                    contentDescription = "Add to favorite"
-                )}
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Add to favorite"
+                    )
+                }
             }
         }
     }

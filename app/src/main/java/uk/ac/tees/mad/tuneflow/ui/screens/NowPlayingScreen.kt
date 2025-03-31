@@ -1,7 +1,6 @@
 package uk.ac.tees.mad.tuneflow.ui.screens
 
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,10 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -30,7 +27,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -61,7 +57,6 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.NavHostController
 import coil3.compose.SubcomposeAsyncImage
-import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import kotlinx.coroutines.delay
@@ -84,9 +79,9 @@ fun NowPlayingScreen(
     LaunchedEffect(Unit) {
         viewmodel.getTrack(id = trackId)
         viewmodel.fetchDataFromDB()
-        if(flag){
-        viewmodel.updateTrackIndex(-1)}
-        else{
+        if (flag) {
+            viewmodel.updateTrackIndex(-1)
+        } else {
             viewmodel.updateTrackIndex(0)
         }
     }
@@ -94,53 +89,59 @@ fun NowPlayingScreen(
     val uiStateNowPlaying by viewmodel.uiStateNowPlaying.collectAsStateWithLifecycle()
     when (uiStateNowPlaying) {
         is UiStateNowPlaying.Error -> {
-            Scaffold(modifier = Modifier.fillMaxSize(),
-                topBar = {TopAppBar(
-                    title = {
-                        Text("Now Playing", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            navController.popBackStack()
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                contentDescription = "Localized description"
-                            )
-                        }
+            Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+                TopAppBar(title = {
+                    Text("Now Playing", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }, navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = "Localized description"
+                        )
                     }
-                )}
-            ) { innerPadding ->
-                Column(modifier = Modifier.fillMaxSize().padding(innerPadding),
+                })
+            }) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Error")}
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Error")
+                }
             }
         }
+
         is UiStateNowPlaying.Loading -> {
-            Scaffold(modifier = Modifier.fillMaxSize(),
-                topBar = {TopAppBar(
-                    title = {
-                        Text("Now Playing", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            navController.popBackStack()
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                contentDescription = "Localized description"
-                            )
-                        }
+            Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+                TopAppBar(title = {
+                    Text("Now Playing", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }, navigationIcon = {
+                    IconButton(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = "Localized description"
+                        )
                     }
-                )}
-            ) { innerPadding ->
-                Column(modifier = Modifier.fillMaxSize().padding(innerPadding),
+                })
+            }) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     CircularProgressIndicator()
-            }}
+                }
+            }
         }
+
         is UiStateNowPlaying.Success -> {
             val track by viewmodel.track.collectAsStateWithLifecycle()
             val trackIndex by viewmodel.trackIndex.collectAsStateWithLifecycle()
@@ -184,9 +185,7 @@ fun NowPlayingScreen(
                 }
 
                 override fun onPositionDiscontinuity(
-                    oldPosition: Player.PositionInfo,
-                    newPosition: Player.PositionInfo,
-                    reason: Int
+                    oldPosition: Player.PositionInfo, newPosition: Player.PositionInfo, reason: Int
                 ) {
                     currentPosition = exoPlayer.currentPosition.toFloat()
                 }
@@ -199,37 +198,33 @@ fun NowPlayingScreen(
                 }
             }
 
-            Scaffold(modifier = Modifier.fillMaxSize(),
-                topBar = {TopAppBar(
-                    title = {
-                        Text("Now Playing", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            navController.navigate(Dest.HomeScreen){
-                                popUpTo(Dest.HomeScreen){
-                                    inclusive = true
-                                }
+            Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+                TopAppBar(title = {
+                    Text("Now Playing", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }, navigationIcon = {
+                    IconButton(onClick = {
+                        navController.navigate(Dest.HomeScreen) {
+                            popUpTo(Dest.HomeScreen) {
+                                inclusive = true
                             }
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                contentDescription = "Localized description"
-                            )
                         }
-                    },
-                    actions = {
-                        IconButton(onClick = {
-                            navController.navigate(Dest.PlaylistScreen)
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
-                                contentDescription = "Localized description"
-                            )
-                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = "Localized description"
+                        )
                     }
-                )}
-            ) { innerPadding ->
+                }, actions = {
+                    IconButton(onClick = {
+                        navController.navigate(Dest.PlaylistScreen)
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                })
+            }) { innerPadding ->
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -240,11 +235,8 @@ fun NowPlayingScreen(
                     Spacer(modifier = Modifier.height(32.dp))
                     if (track != null) {
                         SubcomposeAsyncImage(
-                            model = ImageRequest
-                                .Builder(LocalContext.current)
-                                .data(track!!.album.coverBig.toString())
-                                .crossfade(true)
-                                .build(),
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(track!!.album.coverBig.toString()).crossfade(true).build(),
                             loading = {
                                 Box(
                                     modifier = Modifier
@@ -263,12 +255,12 @@ fun NowPlayingScreen(
                                     contentScale = ContentScale.FillBounds
                                 )
                             },
-                contentDescription = "Album Cover",
-                modifier = Modifier
-                    .size(300.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Crop
-            )
+                            contentDescription = "Album Cover",
+                            modifier = Modifier
+                                .size(300.dp)
+                                .clip(RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Crop
+                        )
 //                    Image(
 //                        painter = painterResource(id = R.drawable.placeholder),
 //                        contentDescription = "Error loading Image",
@@ -277,7 +269,7 @@ fun NowPlayingScreen(
 //                            .clip(RoundedCornerShape(8.dp)),
 //                        contentScale = ContentScale.FillBounds
 //                    )
-                    Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(32.dp))
                         Text(
                             text = "${track?.title}",
                             style = MaterialTheme.typography.headlineMedium,
@@ -345,9 +337,7 @@ fun NowPlayingScreen(
                         IconButton(
                             onClick = {
                                 viewmodel.onPrev()
-                            },
-                            modifier = Modifier.size(72.dp),
-                            enabled = trackIndex>=1
+                            }, modifier = Modifier.size(72.dp), enabled = trackIndex >= 1
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.SkipPrevious,
@@ -363,8 +353,7 @@ fun NowPlayingScreen(
                                 } else {
                                     exoPlayer.play()
                                 }
-                            },
-                            modifier = Modifier.size(72.dp)
+                            }, modifier = Modifier.size(72.dp)
                         ) {
                             Icon(
                                 imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
@@ -378,7 +367,7 @@ fun NowPlayingScreen(
                                 viewmodel.onNext()
                             },
                             modifier = Modifier.size(72.dp),
-                            enabled = trackIndex<=favoriteTracks.size-2
+                            enabled = trackIndex <= favoriteTracks.size - 2
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.SkipNext,
@@ -389,26 +378,29 @@ fun NowPlayingScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         var check by remember { mutableStateOf(viewmodel.checkIsFavorite(track?.id.toString())) }
-                        if(!check){
-                        IconButton(
-                            onClick = {
+                        if (!check) {
+                            IconButton(
+                                onClick = {
 
                                     check = true
                                     viewmodel.addFavoriteTrack(track?.id.toString())
 
 
-                            },
-                            modifier = Modifier.size(72.dp)
-                        ) {
-                            if(!check){
-                                Icon(
-                                    imageVector = Icons.Outlined.FavoriteBorder,
-                                    contentDescription = "Add to favorite",
-                                    modifier = Modifier.size(72.dp)
-                                )
-                        }}
+                                }, modifier = Modifier.size(72.dp)
+                            ) {
+                                if (!check) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.FavoriteBorder,
+                                        contentDescription = "Add to favorite",
+                                        modifier = Modifier.size(72.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

@@ -40,18 +40,22 @@ fun SetupNavGraph(navController: NavHostController) {
                 composable<Dest.HomeScreen> {
                     HomeScreen(navController = navController)
                 }
-            composable<Dest.NowPlayingScreen> {
-                val args = it.toRoute<Dest.NowPlayingScreen>()
-                NowPlayingScreen(navController = navController, trackId = args.trackId, flag = args.flag)
-            }
-            composable<Dest.PlaylistScreen> {
-                PlaylistScreen(
-                    navController = navController
-                )
-            }
-            composable<Dest.ProfileScreen> {
-                ProfileScreen(navController = navController)
-            }
+                composable<Dest.NowPlayingScreen> {
+                    val args = it.toRoute<Dest.NowPlayingScreen>()
+                    NowPlayingScreen(
+                        navController = navController,
+                        trackId = args.trackId,
+                        flag = args.flag
+                    )
+                }
+                composable<Dest.PlaylistScreen> {
+                    PlaylistScreen(
+                        navController = navController
+                    )
+                }
+                composable<Dest.ProfileScreen> {
+                    ProfileScreen(navController = navController)
+                }
             }
         }
     }

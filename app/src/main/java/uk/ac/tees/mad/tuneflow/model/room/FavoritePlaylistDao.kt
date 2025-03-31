@@ -7,7 +7,7 @@ import androidx.room.Query
 import uk.ac.tees.mad.tuneflow.model.dataclass.Track
 
 @Dao
-interface FavoritePlaylistDao{
+interface FavoritePlaylistDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavorite(track: Track)
 

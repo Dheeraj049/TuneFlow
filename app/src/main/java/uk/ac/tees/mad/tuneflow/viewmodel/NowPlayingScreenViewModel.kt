@@ -12,7 +12,6 @@ import uk.ac.tees.mad.tuneflow.model.dataclass.AuthResult
 import uk.ac.tees.mad.tuneflow.model.dataclass.ErrorState
 import uk.ac.tees.mad.tuneflow.model.dataclass.Track
 import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateNowPlaying
-import uk.ac.tees.mad.tuneflow.model.dataclass.UiStateTrendingAlbums
 import uk.ac.tees.mad.tuneflow.model.dataclass.UserData
 import uk.ac.tees.mad.tuneflow.model.dataclass.UserDetails
 import uk.ac.tees.mad.tuneflow.model.repository.AuthRepository
@@ -27,7 +26,7 @@ class NowPlayingScreenViewModel(
     private val deezerRepository: DeezerRepository,
     private val authRepository: AuthRepository,
     private val favoritePlaylistRepository: FavoritePlaylistRepository
-): ViewModel() {
+) : ViewModel() {
     private val _uiStateNowPlaying = MutableStateFlow<UiStateNowPlaying>(UiStateNowPlaying.Loading)
     val uiStateNowPlaying: StateFlow<UiStateNowPlaying> = _uiStateNowPlaying.asStateFlow()
 
@@ -66,9 +65,10 @@ class NowPlayingScreenViewModel(
         }
     }
 
-    fun fetchDataFromDB(){
+    fun fetchDataFromDB() {
         viewModelScope.launch {
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
+            val favoriteTracks =
+                favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
         }
     }
@@ -84,8 +84,12 @@ class NowPlayingScreenViewModel(
     fun addFavoriteTrack(id: String) {
         viewModelScope.launch {
             deezerRepository.getTrack(id).onSuccess { fetchedData ->
-                favoritePlaylistRepository.insertFavorite(fetchedData,_userData.value.userId.toString())
-                val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
+                favoritePlaylistRepository.insertFavorite(
+                    fetchedData,
+                    _userData.value.userId.toString()
+                )
+                val favoriteTracks =
+                    favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
                 _favoriteTracks.value = favoriteTracks
                 fetchDataFromDB()
             }
@@ -94,14 +98,18 @@ class NowPlayingScreenViewModel(
 
     fun removeFavoriteTrack(id: String) {
         viewModelScope.launch {
-            favoritePlaylistRepository.deleteFavorite(id.toLong(),_userData.value.userId.toString())
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
+            favoritePlaylistRepository.deleteFavorite(
+                id.toLong(),
+                _userData.value.userId.toString()
+            )
+            val favoriteTracks =
+                favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
             fetchDataFromDB()
         }
     }
 
-    fun onNext(){
+    fun onNext() {
         viewModelScope.launch {
             _uiStateNowPlaying.value = UiStateNowPlaying.Loading
             _trackIndex.value++
@@ -109,7 +117,7 @@ class NowPlayingScreenViewModel(
         }
     }
 
-    fun onPrev(){
+    fun onPrev() {
         viewModelScope.launch {
             _uiStateNowPlaying.value = UiStateNowPlaying.Loading
             _trackIndex.value--
@@ -141,7 +149,8 @@ class NowPlayingScreenViewModel(
                         ErrorState.UnknownError
                     }
                 }
-                _uiStateNowPlaying.value = UiStateNowPlaying.Error(errorState, exception.message.toString())
+                _uiStateNowPlaying.value =
+                    UiStateNowPlaying.Error(errorState, exception.message.toString())
             }
         }
     }

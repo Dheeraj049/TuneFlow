@@ -54,15 +54,20 @@ class PlaylistScreenViewModel(
 
     fun fetchFavoritePlaylist() {
         viewModelScope.launch {
-            val favoritePlaylist = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
+            val favoritePlaylist =
+                favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoritePlaylist
         }
     }
 
     fun removeFavoriteTrack(id: String) {
         viewModelScope.launch {
-            favoritePlaylistRepository.deleteFavorite(id.toLong(),_userData.value.userId.toString())
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
+            favoritePlaylistRepository.deleteFavorite(
+                id.toLong(),
+                _userData.value.userId.toString()
+            )
+            val favoriteTracks =
+                favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
         }
     }

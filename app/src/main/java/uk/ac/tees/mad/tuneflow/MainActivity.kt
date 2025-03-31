@@ -50,10 +50,10 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(sharedPreferences.getBoolean("dark_mode", true))
             }
             CompositionLocalProvider(LocalIsDarkMode provides isDarkMode) {
-            TuneFlowTheme(darkTheme = isDarkMode.value) {
-                val navController = rememberNavController()
-                SetupNavGraph(navController = navController)
-            }
+                TuneFlowTheme(darkTheme = isDarkMode.value) {
+                    val navController = rememberNavController()
+                    SetupNavGraph(navController = navController)
+                }
             }
         }
     }

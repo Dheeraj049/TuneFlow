@@ -20,7 +20,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun WaveAnimation(numWaves: Int = 6, color: Color = MaterialTheme.colorScheme.primary, width: Dp = 4.dp) {
+fun WaveAnimation(
+    numWaves: Int = 6,
+    color: Color = MaterialTheme.colorScheme.primary,
+    width: Dp = 4.dp
+) {
     val infiniteTransition = rememberInfiniteTransition(label = "waveTransition")
     val waves = List(numWaves) { index ->
         infiniteTransition.animateFloat(

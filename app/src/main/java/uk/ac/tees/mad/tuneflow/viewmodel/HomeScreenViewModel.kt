@@ -38,10 +38,13 @@ class HomeScreenViewModel(
     private val _userData = MutableStateFlow(UserData())
     val userData: StateFlow<UserData> = _userData.asStateFlow()
 
-    private val _uiStateTrendingAlbums = MutableStateFlow<UiStateTrendingAlbums>(UiStateTrendingAlbums.Loading)
-    val uiStateTrendingAlbums: StateFlow<UiStateTrendingAlbums> = _uiStateTrendingAlbums.asStateFlow()
+    private val _uiStateTrendingAlbums =
+        MutableStateFlow<UiStateTrendingAlbums>(UiStateTrendingAlbums.Loading)
+    val uiStateTrendingAlbums: StateFlow<UiStateTrendingAlbums> =
+        _uiStateTrendingAlbums.asStateFlow()
 
-    private val _uiStateTrendingSongs = MutableStateFlow<UiStateTrendingSongs>(UiStateTrendingSongs.Loading)
+    private val _uiStateTrendingSongs =
+        MutableStateFlow<UiStateTrendingSongs>(UiStateTrendingSongs.Loading)
     val uiStateTrendingSongs: StateFlow<UiStateTrendingSongs> = _uiStateTrendingSongs.asStateFlow()
 
     private val _uiStateSearch = MutableStateFlow<UiStateSearch>(UiStateSearch.Loading)
@@ -53,16 +56,16 @@ class HomeScreenViewModel(
     private val _trendingAlbums = MutableStateFlow<ApiPlaylistResponse?>(null)
     val trendingAlbums: StateFlow<ApiPlaylistResponse?> = _trendingAlbums.asStateFlow()
 
-    private val _searchText= MutableStateFlow("")
+    private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText.asStateFlow()
 
-    private val _searchResult= MutableStateFlow<ApiSearchResponse?>(null)
+    private val _searchResult = MutableStateFlow<ApiSearchResponse?>(null)
     val searchResult: StateFlow<ApiSearchResponse?> = _searchResult.asStateFlow()
 
-    private val _clickedTrackId= MutableStateFlow("")
+    private val _clickedTrackId = MutableStateFlow("")
     val clickedTrackId: StateFlow<String> = _clickedTrackId.asStateFlow()
 
-    private val _trackName= MutableStateFlow("")
+    private val _trackName = MutableStateFlow("")
     val trackName: StateFlow<String> = _trackName.asStateFlow()
 
 
@@ -75,7 +78,7 @@ class HomeScreenViewModel(
         getTrendingSongs()
     }
 
-    fun updateSearchResultToEmpty(){
+    fun updateSearchResultToEmpty() {
         _searchResult.value = null
     }
 
@@ -91,17 +94,23 @@ class HomeScreenViewModel(
                     }
                 }
             }
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
+            val favoriteTracks =
+                favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
         }
     }
 
-    fun fetchDataFromDB(){
+    fun fetchDataFromDB() {
         viewModelScope.launch {
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
+            val favoriteTracks =
+                favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
-            if(favoriteTracks.isNotEmpty())
-            {updateClickedTrackIdAndName(favoriteTracks[0].id.toString(), favoriteTracks[0].title)}
+            if (favoriteTracks.isNotEmpty()) {
+                updateClickedTrackIdAndName(
+                    favoriteTracks[0].id.toString(),
+                    favoriteTracks[0].title
+                )
+            }
         }
     }
 
@@ -125,8 +134,12 @@ class HomeScreenViewModel(
     fun addFavoriteTrack(id: String) {
         viewModelScope.launch {
             deezerRepository.getTrack(id).onSuccess { fetchedData ->
-                favoritePlaylistRepository.insertFavorite(fetchedData,_userData.value.userId.toString())
-                val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
+                favoritePlaylistRepository.insertFavorite(
+                    fetchedData,
+                    _userData.value.userId.toString()
+                )
+                val favoriteTracks =
+                    favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
                 _favoriteTracks.value = favoriteTracks
                 fetchDataFromDB()
             }
@@ -135,8 +148,12 @@ class HomeScreenViewModel(
 
     fun removeFavoriteTrack(id: String) {
         viewModelScope.launch {
-            favoritePlaylistRepository.deleteFavorite(id.toLong(),_userData.value.userId.toString())
-            val favoriteTracks = favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
+            favoritePlaylistRepository.deleteFavorite(
+                id.toLong(),
+                _userData.value.userId.toString()
+            )
+            val favoriteTracks =
+                favoritePlaylistRepository.getAllFavorites(_userData.value.userId.toString())
             _favoriteTracks.value = favoriteTracks
             fetchDataFromDB()
         }
@@ -171,13 +188,13 @@ class HomeScreenViewModel(
         }
     }
 
-    fun getTrendingSongs(){
-        viewModelScope.launch{
+    fun getTrendingSongs() {
+        viewModelScope.launch {
             _uiStateTrendingSongs.value = UiStateTrendingSongs.Loading
-            deezerRepository.topSongs().onSuccess {fetchedData ->
+            deezerRepository.topSongs().onSuccess { fetchedData ->
                 _uiStateTrendingSongs.value = UiStateTrendingSongs.Success(fetchedData)
-                _trendingSongs.value= fetchedData
-            }.onFailure {exception ->
+                _trendingSongs.value = fetchedData
+            }.onFailure { exception ->
                 val errorState = when (exception) {
                     is SocketTimeoutException -> {
                         // `Log.e` is used to log errors to the console.
@@ -195,18 +212,19 @@ class HomeScreenViewModel(
                         ErrorState.UnknownError
                     }
                 }
-                _uiStateTrendingSongs.value = UiStateTrendingSongs.Error(errorState,exception.message.toString())
+                _uiStateTrendingSongs.value =
+                    UiStateTrendingSongs.Error(errorState, exception.message.toString())
             }
         }
     }
 
-    fun getTrendingAlbums(){
-        viewModelScope.launch{
+    fun getTrendingAlbums() {
+        viewModelScope.launch {
             _uiStateTrendingAlbums.value = UiStateTrendingAlbums.Loading
-            deezerRepository.topWorldwide().onSuccess {fetchedData ->
+            deezerRepository.topWorldwide().onSuccess { fetchedData ->
                 _uiStateTrendingAlbums.value = UiStateTrendingAlbums.Success(fetchedData)
-                _trendingAlbums.value= fetchedData
-            }.onFailure {exception ->
+                _trendingAlbums.value = fetchedData
+            }.onFailure { exception ->
                 val errorState = when (exception) {
                     is SocketTimeoutException -> {
                         // `Log.e` is used to log errors to the console.
@@ -224,7 +242,8 @@ class HomeScreenViewModel(
                         ErrorState.UnknownError
                     }
                 }
-                _uiStateTrendingAlbums.value = UiStateTrendingAlbums.Error(errorState,exception.message.toString())
+                _uiStateTrendingAlbums.value =
+                    UiStateTrendingAlbums.Error(errorState, exception.message.toString())
             }
 
         }

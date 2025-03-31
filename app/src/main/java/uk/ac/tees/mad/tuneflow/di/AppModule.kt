@@ -47,7 +47,7 @@ val appModule = module {
 
     // Repository
     single { DeezerRepository(get()) }
-    single {FavoritePlaylistRepository(get())}
+    single { FavoritePlaylistRepository(get()) }
 
     // ViewModels
     viewModelOf(::SplashScreenViewModel)

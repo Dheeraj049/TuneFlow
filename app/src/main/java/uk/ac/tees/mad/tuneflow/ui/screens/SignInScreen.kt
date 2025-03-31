@@ -256,9 +256,7 @@ fun SharedTransitionScope.SignInScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.weight(1f)
                                     )
-                                    TextButton(
-                                        modifier = Modifier.weight(1f),
-                                        onClick = {
+                                    TextButton(modifier = Modifier.weight(1f), onClick = {
                                         viewModel.updateEmail("")
                                         viewModel.updatePassword("")
                                         navController.navigate(Dest.SignUpScreen)
