@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.tuneflow.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,12 @@ class ProfileScreenViewModel(
 
     private val _userData = MutableStateFlow(UserData())
     val userData: StateFlow<UserData> = _userData.asStateFlow()
+
+    private val _updateNameResult = MutableStateFlow<AuthResult<Boolean>>(AuthResult.Success(false))
+    val updateNameResult: StateFlow<AuthResult<Boolean>> = _updateNameResult.asStateFlow()
+
+    private val _updatePhotoResult = MutableStateFlow<AuthResult<Boolean>>(AuthResult.Success(false))
+    val updatePhotoResult: StateFlow<AuthResult<Boolean>> = _updatePhotoResult.asStateFlow()
 
     init {
         fetchUserDetails()
@@ -42,6 +49,28 @@ class ProfileScreenViewModel(
 
     fun signOut() {
         authRepository.SignOut()
+    }
+
+    fun updateDisplayName(displayName: String) {
+        viewModelScope.launch {
+            authRepository.updateDisplayName(displayName).collect { result ->
+                _updateNameResult.value = result
+                if (result is AuthResult.Success) {
+                    fetchUserDetails()
+                }
+            }
+        }
+    }
+
+    fun updatePhoto(photoUri: Uri) {
+        viewModelScope.launch {
+            authRepository.updatePhoto(photoUri).collect { result ->
+                _updatePhotoResult.value = result
+                if (result is AuthResult.Success) {
+                    fetchUserDetails()
+                }
+            }
+        }
     }
 
 }

@@ -1,7 +1,10 @@
 package uk.ac.tees.mad.tuneflow.model.repository
 
+import android.net.Uri
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -68,6 +71,48 @@ class AuthRepository(private val auth: FirebaseAuth) {
             }
         } catch (e: Exception) {
             emit(AuthResult.Error(e))
+        }
+    }
+
+    fun updateDisplayName(displayName: String): Flow<AuthResult<Boolean>> = flow {
+        emit(AuthResult.Loading)
+        try {
+            val user = auth.currentUser
+            if (user != null) {
+                val profileUpdates = UserProfileChangeRequest.Builder()
+                    .setDisplayName(displayName)
+                    .build()
+
+                user.updateProfile(profileUpdates).await()
+                emit(AuthResult.Success(true))
+                Log.d("AuthRepository", "User display name updated.")
+            } else {
+                emit(AuthResult.Error(Exception("No user logged in")))
+            }
+        } catch (e: Exception) {
+            emit(AuthResult.Error(e))
+            Log.e("AuthRepository", "Failed to update user display name.", e)
+        }
+    }
+
+    fun updatePhoto(photoUri: Uri): Flow<AuthResult<Boolean>> = flow {
+        emit(AuthResult.Loading)
+        try {
+            val user = auth.currentUser
+            if (user != null) {
+                val profileUpdates = UserProfileChangeRequest.Builder()
+                    .setPhotoUri(photoUri)
+                    .build()
+
+                user.updateProfile(profileUpdates).await()
+                emit(AuthResult.Success(true))
+                Log.d("AuthRepository", "User photo updated.")
+            } else {
+                emit(AuthResult.Error(Exception("No user logged in")))
+            }
+        } catch (e: Exception) {
+            emit(AuthResult.Error(e))
+            Log.e("AuthRepository", "Failed to update user photo.", e)
         }
     }
 
